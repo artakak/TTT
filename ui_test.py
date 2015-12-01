@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'test.ui'
 #
-# Created: Mon Nov 30 12:57:29 2015
+# Created: Tue Dec  1 13:10:09 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,16 +75,13 @@ class Ui_MainWindow(object):
         self.lineEdit_6.setText(_fromUtf8(""))
         self.lineEdit_6.setObjectName(_fromUtf8("lineEdit_6"))
         self.gridLayout.addWidget(self.lineEdit_6, 11, 0, 1, 3)
-        self.label_6 = QtGui.QLabel(self.centralwidget)
-        self.label_6.setObjectName(_fromUtf8("label_6"))
-        self.gridLayout.addWidget(self.label_6, 12, 0, 1, 1)
-        self.lineEdit_7 = QtGui.QLineEdit(self.centralwidget)
-        self.lineEdit_7.setText(_fromUtf8(""))
-        self.lineEdit_7.setObjectName(_fromUtf8("lineEdit_7"))
-        self.gridLayout.addWidget(self.lineEdit_7, 13, 0, 1, 3)
         self.lineEdit_3 = QtGui.QLineEdit(self.centralwidget)
         self.lineEdit_3.setObjectName(_fromUtf8("lineEdit_3"))
         self.gridLayout.addWidget(self.lineEdit_3, 5, 0, 1, 3)
+        self.progressBar = QtGui.QProgressBar(self.centralwidget)
+        self.progressBar.setProperty("value", 0)
+        self.progressBar.setObjectName(_fromUtf8("progressBar"))
+        self.gridLayout.addWidget(self.progressBar, 12, 0, 1, 3)
         self.lineEdit_4 = QtGui.QLineEdit(self.centralwidget)
         self.lineEdit_4.setText(_fromUtf8(""))
         self.lineEdit_4.setObjectName(_fromUtf8("lineEdit_4"))
@@ -93,10 +90,6 @@ class Ui_MainWindow(object):
         self.lineEdit_5.setText(_fromUtf8(""))
         self.lineEdit_5.setObjectName(_fromUtf8("lineEdit_5"))
         self.gridLayout.addWidget(self.lineEdit_5, 9, 0, 1, 3)
-        self.progressBar = QtGui.QProgressBar(self.centralwidget)
-        self.progressBar.setProperty("value", 0)
-        self.progressBar.setObjectName(_fromUtf8("progressBar"))
-        self.gridLayout.addWidget(self.progressBar, 14, 0, 1, 3)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -116,6 +109,5 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "DB Path", None))
         self.label_3.setText(_translate("MainWindow", "DB Trunk Path", None))
         self.label_4.setText(_translate("MainWindow", "DB Release Path", None))
-        self.label_5.setText(_translate("MainWindow", "DB Release Server Path", None))
-        self.label_6.setText(_translate("MainWindow", "DB Release Server Path", None))
+        self.label_5.setText(_translate("MainWindow", "DB Server Path", None))
 

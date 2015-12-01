@@ -104,7 +104,7 @@
     <item row="10" column="0">
      <widget class="QLabel" name="label_5">
       <property name="text">
-       <string>DB Release Server Path</string>
+       <string>DB Server Path</string>
       </property>
      </widget>
     </item>
@@ -115,22 +115,15 @@
       </property>
      </widget>
     </item>
-    <item row="12" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>DB Release Server Path</string>
-      </property>
-     </widget>
-    </item>
-    <item row="13" column="0" colspan="3">
-     <widget class="QLineEdit" name="lineEdit_7">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
     <item row="5" column="0" colspan="3">
      <widget class="QLineEdit" name="lineEdit_3"/>
+    </item>
+    <item row="12" column="0" colspan="3">
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
     </item>
     <item row="7" column="0" colspan="3">
      <widget class="QLineEdit" name="lineEdit_4">
@@ -143,13 +136,6 @@
      <widget class="QLineEdit" name="lineEdit_5">
       <property name="text">
        <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="14" column="0" colspan="3">
-     <widget class="QProgressBar" name="progressBar">
-      <property name="value">
-       <number>0</number>
       </property>
      </widget>
     </item>
