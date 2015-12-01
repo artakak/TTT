@@ -1,6 +1,7 @@
 #!-*-coding:utf-8-*-
 import sys
 import os
+import re
 # import PyQt4 QtCore and QtGui modules
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -24,6 +25,10 @@ class MainWindow(QMainWindow):
         self.ui.lineEdit_4.setText(r'X:\ExperiumTrunk\DB')
         self.ui.lineEdit_5.setText(r'X:\ExperiumRelease\DB')
         self.ui.lineEdit_6.setText(r'X:\winserverexe\newexe\trunkexe')
+        self.ui.comboBox.c
+
+    def db_chanfe(self):
+
 
     def enumver(self):
         version = []
