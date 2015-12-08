@@ -108,6 +108,7 @@ class MainWindow(QMainWindow):
         for t in xrange(len(changes)):
             print(str(t+1)+') '+str(changes[t]['msg']).decode('utf8'))
         print('')
+        #print(str(len(threading.enumerate())))
 
     def jenkins_build(self):
         j = self.J.get_job(self.ui.comboBox_2.currentText())
@@ -115,7 +116,6 @@ class MainWindow(QMainWindow):
             return (1)
         else:
             self.J.build_job(self.ui.comboBox_2.currentText())
-
 
     def redmine(self):
         t_time = datetime.date.today()
@@ -221,7 +221,7 @@ class MainWindow(QMainWindow):
         print('DONE!!!')
 
     def update_db(self):
-        data_path = self.ui.lineEdit_3.displayText()
+        data_path = str(self.ui.lineEdit_3.displayText())
         self.server = str(self.ui.lineEdit_6.displayText())
         try:
             self.stop()
