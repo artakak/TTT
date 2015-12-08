@@ -19,8 +19,6 @@ from PyQt4 import QtGui
 from ui_test import Ui_MainWindow
 
 
-#( Ui_MainWindow, QMainWindow ) = uic.loadUiType( 'ui_test.ui' )
-
 class Logger(object):
     def __init__(self, output):
         self.output = output
@@ -48,18 +46,11 @@ class MainWindow(QMainWindow):
         self.cl_expgr_path = r'C:\Program Files\ExperiumGr'
         self.ui.lineEdit_7.setText(self.cl_exp_path)
         self.ui.lineEdit_8.setText(self.cl_expgr_path)
-        self.ui.pushButton.clicked.connect(self.enumver)
         self.ui.lineEdit_3.setText(self.DB['HRM_Trunk'][0])
         self.ui.lineEdit_6.setText(self.DB['HRM_Trunk'][1])
         self.DB.close()
         self.ui.comboBox.currentIndexChanged.connect(self.db_change)
-
         self.cl_localdata_path = r'C:\Users\win7_test\AppData\Roaming\Experium\Client'
-
-        data_trunk_hrm_path = r'C:\ProgramData\Experium_DB_TRUNK_HRM'
-        data_trunk_ka_path = r'C:\ProgramData\Experium_DB_TRUNK_KA'
-        data_release_hrm_path = r'C:\ProgramData\Experium_DB_RELEASE_HRM'
-        data_release_ka_path = r'C:\ProgramData\Experium_DB_RELEASE_KA'
         self.data_trunk_path = r'X:\ExperiumTrunk\DB'
         self.data_release_path = r'X:\ExperiumRelease\DB'
         self.X_serv_release_path = r'X:\winserverexe\newexe'
@@ -67,20 +58,24 @@ class MainWindow(QMainWindow):
         self.clientupd = [r'\Experium.exe',r'\expenu.dll',r'\exprus.dll',r'\GCalDav.dll',r'\MailEngine.dll',r'\SMSEngine.dll']
         self.srvupd = [r'\exp_srv.exe',r'\sdatacnv.exe',r'\sdatasrv.exe',r'\sexpsrv.exe',r'\smetasrch.exe',r'\smetasrv.exe',r'\srmeta.exe',r'\wcnvnode.exe',r'\wdatacnv.exe',r'\wdatasrv.exe',r'\wmetasrch.exe',r'\wmetasrv.exe',r'\wrmeta.exe']
         self.localdatas = [r'C:\Users\win7_test\AppData\Roaming\ExperiumGr\Client',r'C:\Users\win7_test\AppData\Roaming\Experium\Client']
+
         self.J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft")
         self.ui.comboBox_2.addItems(self.J.keys())
 
+        self.ui.pushButton.clicked.connect(self.enumver)
+        self.ui.pushButton_7.clicked.connect(self.clrlocal_cl)
+        self.ui.pushButton_11.clicked.connect(self.jenkins_build)
+        self.ui.pushButton_9.clicked.connect(self.ui.textBrowser.clear)
         self.ui.pushButton_3.clicked.connect(lambda : self.start_thread(self.start))
         self.ui.pushButton_4.clicked.connect(lambda : self.start_thread(self.stop))
         self.ui.pushButton_6.clicked.connect(lambda : self.start_thread(self.update_cl))
         self.ui.pushButton_5.clicked.connect(lambda : self.start_thread(self.start_cl))
         self.ui.pushButton_2.clicked.connect(lambda : self.start_thread(self.update))
-        self.ui.pushButton_7.clicked.connect(self.clrlocal_cl)
         self.ui.pushButton_8.clicked.connect(lambda : self.start_thread(self.redmine))
         self.ui.pushButton_10.clicked.connect(lambda : self.start_thread(self.jenkins))
         self.ui.pushButton_12.clicked.connect(lambda : self.start_thread(self.update_db))
-        self.ui.pushButton_11.clicked.connect(self.jenkins_build)
-        self.ui.pushButton_9.clicked.connect(self.ui.textBrowser.clear)
+
+
         self.logger = Logger(self.ui.textBrowser)
         sys.stdout = self.logger
 
