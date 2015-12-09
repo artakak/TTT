@@ -75,17 +75,13 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_10.clicked.connect(lambda : self.start_thread(self.jenkins))
         self.ui.pushButton_12.clicked.connect(lambda : self.start_thread(self.update_db))
 
-
         self.logger = Logger(self.ui.textBrowser)
         sys.stdout = self.logger
-
-
 
     def wid_write(self, cmd):
         PIPE = subprocess.PIPE
         p = subprocess.Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT)
         print p.stdout.read()
-
 
     def start_thread(self, meth):
         t = threading.Thread(target=meth)
@@ -146,7 +142,6 @@ class MainWindow(QMainWindow):
             print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
         print('')
 
-
     def update_cl(self):
         if self.ui.checkBox_2.isChecked():
             self.wid_write("taskkill /im experium.exe")
@@ -160,7 +155,6 @@ class MainWindow(QMainWindow):
                 self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
         for f in self.localdatas:
             self.wid_write('RMDIR /s /Q '+f)
-
 
         if self.ui.checkBox_3.isChecked():
             self.wid_write("taskkill /t /im exp_srv.exe")
@@ -178,8 +172,6 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_3.isChecked():
             os.startfile(self.cl_exp_path+'\exp_srv.exe')
 
-
-
     def start(self):
         self.ui.pushButton_3.setEnabled(False)
         self.server = str(self.ui.lineEdit_6.displayText())
@@ -191,7 +183,6 @@ class MainWindow(QMainWindow):
         self.wid_write('"'+str(self.server)+'\installandrun.cmd"')
         os.startfile(self.cl_exp_path+'\experium.exe')
         print('DONE!!!')
-
 
     def stop(self):
         self.wid_write('"'+str(self.server)+'\pause.cmd"')
