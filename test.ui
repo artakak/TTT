@@ -213,7 +213,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Stop</string>
+     <string>STOP</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_3">
@@ -242,7 +242,7 @@
    <widget class="QCheckBox" name="checkBox_2">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>530</x>
       <y>151</y>
       <width>49</width>
       <height>17</height>
@@ -281,7 +281,7 @@
    <widget class="QCheckBox" name="checkBox_3">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>530</x>
       <y>180</y>
       <width>55</width>
       <height>17</height>
@@ -302,19 +302,6 @@
     </property>
     <property name="text">
      <string/>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_7">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>206</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>ClrLocalData</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_7">
@@ -380,7 +367,7 @@
      <rect>
       <x>740</x>
       <y>10</y>
-      <width>81</width>
+      <width>91</width>
       <height>16</height>
      </rect>
     </property>
@@ -485,6 +472,32 @@
     <property name="midLineWidth">
      <number>1</number>
     </property>
+    <widget class="QPushButton" name="pushButton_13">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>206</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>STOP</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_7">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>206</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ClrLocalData</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
@@ -520,6 +533,19 @@
       <string>ClrLog</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_14">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Queue</string>
+     </property>
+    </widget>
    </widget>
    <zorder>frame</zorder>
    <zorder>frame_2</zorder>
@@ -544,7 +570,6 @@
    <zorder>pushButton_6</zorder>
    <zorder>checkBox_3</zorder>
    <zorder>lineEdit_6</zorder>
-   <zorder>pushButton_7</zorder>
    <zorder>lineEdit_7</zorder>
    <zorder>lineEdit_8</zorder>
    <zorder>textBrowser</zorder>

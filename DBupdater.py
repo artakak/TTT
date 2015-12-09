@@ -74,6 +74,8 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_8.clicked.connect(lambda : self.start_thread(self.redmine))
         self.ui.pushButton_10.clicked.connect(lambda : self.start_thread(self.jenkins))
         self.ui.pushButton_12.clicked.connect(lambda : self.start_thread(self.update_db))
+        self.ui.pushButton_13.clicked.connect(lambda : self.start_thread(self.stop_cl))
+        self.ui.pushButton_14.clicked.connect(lambda : self.start_thread(self.jenkins_queue))
 
         self.logger = Logger(self.ui.textBrowser)
         sys.stdout = self.logger
@@ -84,8 +86,7 @@ class MainWindow(QMainWindow):
         print p.stdout.read()
 
     def start_thread(self, meth):
-        t = threading.Thread(target=meth)
-        t.start()
+        threading.Thread(target=meth).start()
 
     def clrlocal_cl(self):
         for f in self.localdatas:
@@ -103,10 +104,12 @@ class MainWindow(QMainWindow):
 
     def jenkins_build(self):
         j = self.J.get_job(self.ui.comboBox_2.currentText())
-        if j.is_queued_or_running():
-            return (1)
-        else:
+        if not j.is_queued_or_running():
             self.J.build_job(self.ui.comboBox_2.currentText())
+
+    def jenkins_queue(self):
+        q = self.J.get_queue()._data
+        print(dict.values(q))
 
     def redmine(self):
         t_time = datetime.date.today()
@@ -172,19 +175,25 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_3.isChecked():
             os.startfile(self.cl_exp_path+'\exp_srv.exe')
 
+    def stop_cl(self):
+        self.wid_write("taskkill /im experium.exe")
+        if self.ui.checkBox_3.isChecked():
+            self.wid_write("taskkill /t /im exp_srv.exe")
+            time.sleep(15)
+        print('DONE!!!')
+
     def start(self):
         self.ui.pushButton_3.setEnabled(False)
         self.server = str(self.ui.lineEdit_6.displayText())
-        try:
-            self.wid_write('RMDIR /s /Q '+self.cl_localdata_path)
-            self.stop()
-            self.ui.pushButton_3.setEnabled(False)
-        except: pass
+        self.wid_write('RMDIR /s /Q '+self.cl_localdata_path)
+        self.stop()
+        self.ui.pushButton_3.setEnabled(False)
         self.wid_write('"'+str(self.server)+'\installandrun.cmd"')
         os.startfile(self.cl_exp_path+'\experium.exe')
         print('DONE!!!')
 
     def stop(self):
+        self.server = str(self.ui.lineEdit_6.displayText())
         self.wid_write('"'+str(self.server)+'\pause.cmd"')
         self.wid_write('"'+str(self.server)+'\uninstallsvc.cmd"')
         self.ui.pushButton_3.setEnabled(True)
@@ -192,9 +201,7 @@ class MainWindow(QMainWindow):
 
     def update(self):
         self.server = str(self.ui.lineEdit_6.displayText())
-        try:
-            self.stop()
-        except: pass
+        self.stop()
         if str(self.ui.comboBox.currentText()) == 'HRM_Trunk' or str(self.ui.comboBox.currentText()) == 'AGN_Trunk':
             for f in self.srvupd:
                 self.wid_write('copy /Y "'+self.X_serv_trunk_path+f+'" "'+self.server+f+'"')
@@ -209,9 +216,7 @@ class MainWindow(QMainWindow):
     def update_db(self):
         data_path = str(self.ui.lineEdit_3.displayText())
         self.server = str(self.ui.lineEdit_6.displayText())
-        try:
-            self.stop()
-        except: pass
+        self.stop()
         if str(self.ui.comboBox.currentText()) == 'HRM_Trunk' or str(self.ui.comboBox.currentText()) == 'AGN_Trunk':
             X_path = self.data_trunk_path
             if str(self.ui.comboBox.currentText()) == 'HRM_Trunk':
