@@ -48,7 +48,6 @@ class MainWindow(QMainWindow):
         self.ui.lineEdit_8.setText(self.cl_expgr_path)
         self.ui.lineEdit_3.setText(self.DB['HRM_Trunk'][0])
         self.ui.lineEdit_6.setText(self.DB['HRM_Trunk'][1])
-        self.DB.close()
         self.ui.comboBox.currentIndexChanged.connect(self.db_change)
         self.cl_localdata_path = r'C:\Users\win7_test\AppData\Roaming\Experium\Client'
         self.data_trunk_path = r'X:\ExperiumTrunk\DB'
@@ -76,9 +75,33 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_12.clicked.connect(lambda : self.start_thread(self.update_db))
         self.ui.pushButton_13.clicked.connect(lambda : self.start_thread(self.stop_cl))
         self.ui.pushButton_14.clicked.connect(lambda : self.start_thread(self.jenkins_queue))
+        self.ui.pushButton_15.clicked.connect(self.deploy_databases)
+        self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
 
         self.logger = Logger(self.ui.textBrowser)
         sys.stdout = self.logger
+
+        for k in self.DB.keys():
+            if not k in ['HRM_Trunk','HRM_Release','AGN_Trunk','AGN_Release']:
+                self.ui.comboBox.addItem(k)
+
+        self.DB.close()
+
+    def deploy_databases(self):
+        self.DB = shelve.open('DB.txt')
+        DB_name = QtGui.QInputDialog.getText(self, 'DBName', 'Enter DB name:')
+        DB_serv_path = QtGui.QFileDialog.getExistingDirectory(self, 'Select DB Server Path','/')
+        DB_data_path = QtGui.QFileDialog.getExistingDirectory(self, 'Select DB Data Path','/')
+        type_flag = QtGui.QInputDialog.getText(self, 'DBType', 'Enter DB type 0-HR,1-KA:')
+        trunk_flag = QtGui.QInputDialog.getText(self, 'DBType', 'Enter DB type 0-TRUNK,1-RELEASE:')
+        self.DB[str(DB_name[0])] = [str(DB_data_path),str(DB_serv_path),str(type_flag),str(trunk_flag)]
+        self.DB.close()
+        self.ui.comboBox.addItem(str(DB_name[0]))
+    def uninstall_databases(self):
+        self.DB = shelve.open('DB.txt')
+        if not self.ui.comboBox.currentText() in ['HRM_Trunk','HRM_Release','AGN_Trunk','AGN_Release']:
+            self.DB.pop(str(self.ui.comboBox.currentText()))
+            self.ui.comboBox.removeItem(self.ui.comboBox.currentIndex())
 
     def wid_write(self, cmd):
         PIPE = subprocess.PIPE
@@ -108,8 +131,18 @@ class MainWindow(QMainWindow):
             self.J.build_job(self.ui.comboBox_2.currentText())
 
     def jenkins_queue(self):
-        q = self.J.get_queue()._data
-        print(dict.values(q))
+        j = self.J.get_job(self.ui.comboBox_2.currentText())
+        if j.is_running():
+            print(self.ui.comboBox_2.currentText()+' Is Running')
+            i = 5
+            while j.is_running():
+                self.ui.progressBar.setValue(i)
+                i+=5
+                if i == 100: i = 0
+            print(self.ui.comboBox_2.currentText()+' Is Finished')
+            self.ui.progressBar.setValue(0)
+        elif j.is_queued:
+            print(self.ui.comboBox_2.currentText()+' Is Queued')
 
     def redmine(self):
         t_time = datetime.date.today()
