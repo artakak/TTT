@@ -166,6 +166,9 @@ class Ui_MainWindow(object):
         self.pushButton_7 = QtGui.QPushButton(self.frame_2)
         self.pushButton_7.setGeometry(QtCore.QRect(100, 206, 75, 23))
         self.pushButton_7.setObjectName(_fromUtf8("pushButton_7"))
+        self.checkBox_4 = QtGui.QCheckBox(self.frame_2)
+        self.checkBox_4.setGeometry(QtCore.QRect(160, 180, 55, 17))
+        self.checkBox_4.setObjectName(_fromUtf8("checkBox_4"))
         self.frame_3 = QtGui.QFrame(self.centralwidget)
         self.frame_3.setGeometry(QtCore.QRect(730, 0, 291, 241))
         self.frame_3.setFrameShape(QtGui.QFrame.Box)
@@ -250,6 +253,7 @@ class Ui_MainWindow(object):
         self.pushButton_16.setText(_translate("MainWindow", "Uninstall !!!", None))
         self.pushButton_13.setText(_translate("MainWindow", "STOP", None))
         self.pushButton_7.setText(_translate("MainWindow", "ClrLocalData", None))
+        self.checkBox_4.setText(_translate("MainWindow", "Client", None))
         self.pushButton_9.setText(_translate("MainWindow", "ClrLog", None))
         self.pushButton_14.setText(_translate("MainWindow", "Queue", None))
 

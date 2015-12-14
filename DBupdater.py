@@ -36,10 +36,10 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.DB = shelve.open('DB.txt')
-        self.DB['HRM_Trunk'] = [r'C:\ProgramData\Experium_DB_TRUNK_HRM', r'C:\Program Files\EXPERIUM_DB_TRUNK_HRM']
-        self.DB['HRM_Release'] = [r'C:\ProgramData\Experium_DB_RELEASE_HRM', r'C:\Program Files\EXPERIUM_DB_RELEASE_HRM']
-        self.DB['AGN_Trunk'] = [r'C:\ProgramData\Experium_DB_TRUNK_KA', r'C:\Program Files\EXPERIUM_DB_TRUNK']
-        self.DB['AGN_Release'] = [r'C:\ProgramData\Experium_DB_RELEASE_KA', r'C:\Program Files\EXPERIUM_DB_RELEASE_RA']
+        self.DB['HRM_Trunk'] = [r'C:\ProgramData\Experium_DB_TRUNK_HRM', r'C:\Program Files\EXPERIUM_DB_TRUNK_HRM','0','0']
+        self.DB['HRM_Release'] = [r'C:\ProgramData\Experium_DB_RELEASE_HRM', r'C:\Program Files\EXPERIUM_DB_RELEASE_HRM','0','1']
+        self.DB['AGN_Trunk'] = [r'C:\ProgramData\Experium_DB_TRUNK_KA', r'C:\Program Files\EXPERIUM_DB_TRUNK','1','0']
+        self.DB['AGN_Release'] = [r'C:\ProgramData\Experium_DB_RELEASE_KA', r'C:\Program Files\EXPERIUM_DB_RELEASE_RA','1','1']
         self.trunk_expcl_path = r'X:\ExperiumTrunk'
         self.release_expcl_path = r'X:\ExperiumRelease'
         self.cl_exp_path = r'C:\Program Files\Experium'
@@ -48,6 +48,8 @@ class MainWindow(QMainWindow):
         self.ui.lineEdit_8.setText(self.cl_expgr_path)
         self.ui.lineEdit_3.setText(self.DB['HRM_Trunk'][0])
         self.ui.lineEdit_6.setText(self.DB['HRM_Trunk'][1])
+        self.type_flag = (self.DB['HRM_Trunk'][2])
+        self.trunk_flag = (self.DB['HRM_Trunk'][3])
         self.ui.comboBox.currentIndexChanged.connect(self.db_change)
         self.cl_localdata_path = r'C:\Users\win7_test\AppData\Roaming\Experium\Client'
         self.data_trunk_path = r'X:\ExperiumTrunk\DB'
@@ -94,9 +96,31 @@ class MainWindow(QMainWindow):
         DB_data_path = QtGui.QFileDialog.getExistingDirectory(self, 'Select DB Data Path','/')
         type_flag = QtGui.QInputDialog.getText(self, 'DBType', 'Enter DB type 0-HR,1-KA:')
         trunk_flag = QtGui.QInputDialog.getText(self, 'DBType', 'Enter DB type 0-TRUNK,1-RELEASE:')
-        self.DB[str(DB_name[0])] = [str(DB_data_path),str(DB_serv_path),str(type_flag),str(trunk_flag)]
+        self.DB[str(DB_name[0])] = [str(DB_data_path),str(DB_serv_path),str(type_flag[0]),str(trunk_flag[0])]
         self.DB.close()
         self.ui.comboBox.addItem(str(DB_name[0]))
+        wdatasrv = open('wdatasrv.par','r')
+        wdatasrv1 = open('wdatasrv1.par','w')
+        wmetasrv1 = open('wmetasrv1.par','w')
+        wmetasrv = open('wmetasrv.par','r')
+        srvini = open('exp_srv.ini','r')
+        srvini1 = open('exp_srv1.ini','w')
+        text = wdatasrv.read()
+        wdatasrv1.write(text.replace('DB_data_path',str(DB_data_path)))
+        text = wmetasrv.read()
+        wmetasrv1.write(text.replace('DB_data_path',str(DB_data_path)))
+        text = srvini.read()
+        srvini1.write(text.replace('DB_serv_path',str(DB_serv_path)))
+        srvini.close()
+        srvini1.close()
+        wdatasrv.close()
+        wdatasrv1.close()
+        wmetasrv.close()
+        wmetasrv1.close()
+        self.wid_write('copy /Y "wdatasrv1.par" "'+str(DB_serv_path)+'\wdatasrv.par"')
+        self.wid_write('copy /Y "wmetasrv1.par" "'+str(DB_serv_path)+'\wmetasrv.par"')
+        self.wid_write('copy /Y "exp_srv1.ini" "'+str(DB_serv_path)+'\exp_srv.ini"')
+
     def uninstall_databases(self):
         self.DB = shelve.open('DB.txt')
         if not self.ui.comboBox.currentText() in ['HRM_Trunk','HRM_Release','AGN_Trunk','AGN_Release']:
@@ -179,18 +203,19 @@ class MainWindow(QMainWindow):
         print('')
 
     def update_cl(self):
-        if self.ui.checkBox_2.isChecked():
-            self.wid_write("taskkill /im experium.exe")
-            for f in self.clientupd:
-                self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
-                self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
-        else:
-            self.wid_write("taskkill /im experium.exe")
-            for f in self.clientupd:
-                self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
-                self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
-        for f in self.localdatas:
-            self.wid_write('RMDIR /s /Q '+f)
+        if self.ui.checkBox_4.isChecked():
+            if self.ui.checkBox_2.isChecked():
+                self.wid_write("taskkill /im experium.exe")
+                for f in self.clientupd:
+                    self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
+                    self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
+            else:
+                self.wid_write("taskkill /im experium.exe")
+                for f in self.clientupd:
+                    self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
+                    self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
+            for f in self.localdatas:
+                self.wid_write('RMDIR /s /Q '+f)
 
         if self.ui.checkBox_3.isChecked():
             self.wid_write("taskkill /t /im exp_srv.exe")
@@ -221,24 +246,35 @@ class MainWindow(QMainWindow):
         self.wid_write('RMDIR /s /Q '+self.cl_localdata_path)
         self.stop()
         self.ui.pushButton_3.setEnabled(False)
-        self.wid_write('"'+str(self.server)+'\installandrun.cmd"')
+        self.wid_write('sc create SDataSrv binPath= "'+self.server+'\sdatasrv.exe" type= own start= demand error= normal"')
+        self.wid_write('sc create SMetaSrch binPath= "'+self.server+'\smetasrch.exe" type= own start= demand error= normal"')
+        self.wid_write('sc create SMetaSrv binPath= "'+self.server+'\smetasrv.exe" type= own start= demand error= normal"')
+        self.wid_write('sc create SDataCnv binPath= "'+self.server+'\sdatacnv.exe" type= own start= demand error= normal"')
+        self.wid_write('sc create ExperiumLauncherService binPath= "'+self.server+'\sexpsrv.exe" type= own start= auto error= normal"')
+        self.wid_write('sc start "ExperiumLauncherService"')
         os.startfile(self.cl_exp_path+'\experium.exe')
         print('DONE!!!')
 
     def stop(self):
         self.server = str(self.ui.lineEdit_6.displayText())
-        self.wid_write('"'+str(self.server)+'\pause.cmd"')
-        self.wid_write('"'+str(self.server)+'\uninstallsvc.cmd"')
+        self.wid_write('sc stop "ExperiumLauncherService"')
+        self.wid_write('sc delete "SDataSrv"')
+        self.wid_write('sc delete "SDataCnv"')
+        self.wid_write('sc delete "SMetaSrch"')
+        self.wid_write('sc delete "SMetaSrv"')
+        self.wid_write('sc delete "ExperiumLauncherService"')
         self.ui.pushButton_3.setEnabled(True)
         print('DONE!!!')
 
     def update(self):
         self.server = str(self.ui.lineEdit_6.displayText())
         self.stop()
-        if str(self.ui.comboBox.currentText()) == 'HRM_Trunk' or str(self.ui.comboBox.currentText()) == 'AGN_Trunk':
+        print(str(self.trunk_flag[0]))
+        print(str(self.type_flag[0]))
+        if str(self.trunk_flag[0]) == '0':
             for f in self.srvupd:
                 self.wid_write('copy /Y "'+self.X_serv_trunk_path+f+'" "'+self.server+f+'"')
-        else:
+        if str(self.trunk_flag[0]) == '1':
             for f in self.srvupd:
                 self.wid_write('copy /Y "'+self.X_serv_release_path+f+'" "'+self.server+f+'"')
         if self.ui.checkBox.isChecked():
@@ -250,17 +286,17 @@ class MainWindow(QMainWindow):
         data_path = str(self.ui.lineEdit_3.displayText())
         self.server = str(self.ui.lineEdit_6.displayText())
         self.stop()
-        if str(self.ui.comboBox.currentText()) == 'HRM_Trunk' or str(self.ui.comboBox.currentText()) == 'AGN_Trunk':
+        if str(self.trunk_flag[0]) == '0':
             X_path = self.data_trunk_path
-            if str(self.ui.comboBox.currentText()) == 'HRM_Trunk':
+            if str(self.type_flag[0]) == '0':
                 base1 = 'db0hr.zip'
-            else:
+            if str(self.type_flag[0]) == '1':
                 base1 = 'db0ra.zip'
-        else:
+        if str(self.trunk_flag[0]) == '1':
             X_path = self.data_release_path
-            if str(self.ui.comboBox.currentText()) == 'HRM_Release':
+            if str(self.type_flag[0]) == '0':
                 base1 = 'db0hr.zip'
-            else:
+            if str(self.type_flag[0]) == '1':
                 base1 = 'db0ra.zip'
         base = r'\\'+base1
         self.wid_write('RMDIR /s /Q '+data_path+'\BACKUPDATA')
@@ -278,6 +314,8 @@ class MainWindow(QMainWindow):
         DB_name = str(self.ui.comboBox.currentText())
         self.ui.lineEdit_3.setText(self.DB[DB_name][0])
         self.ui.lineEdit_6.setText(self.DB[DB_name][1])
+        self.type_flag = str(self.DB[DB_name][2])
+        self.trunk_flag = str(self.DB[DB_name][3])
         self.DB.close()
 
     def enumver(self):
