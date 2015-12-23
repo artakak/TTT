@@ -241,11 +241,11 @@ class MainWindow(QMainWindow):
         print('DONE!!!')
 
     def start(self):
-        self.ui.pushButton_3.setEnabled(False)
         self.server = str(self.ui.lineEdit_6.displayText())
         self.wid_write('RMDIR /s /Q '+self.cl_localdata_path)
         self.stop()
         self.ui.pushButton_3.setEnabled(False)
+        self.ui.comboBox.setEnabled(False)
         self.wid_write('sc create SDataSrv binPath= "'+self.server+'\sdatasrv.exe" type= own start= demand error= normal"')
         self.wid_write('sc create SMetaSrch binPath= "'+self.server+'\smetasrch.exe" type= own start= demand error= normal"')
         self.wid_write('sc create SMetaSrv binPath= "'+self.server+'\smetasrv.exe" type= own start= demand error= normal"')
@@ -264,6 +264,7 @@ class MainWindow(QMainWindow):
         self.wid_write('sc delete "SMetaSrv"')
         self.wid_write('sc delete "ExperiumLauncherService"')
         self.ui.pushButton_3.setEnabled(True)
+        self.ui.comboBox.setEnabled(True)
         print('DONE!!!')
 
     def update(self):
