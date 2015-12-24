@@ -187,6 +187,12 @@ class Ui_MainWindow(object):
         self.progressBar.setProperty("value", 0)
         self.progressBar.setTextVisible(False)
         self.progressBar.setObjectName(_fromUtf8("progressBar"))
+        self.pushButton_17 = QtGui.QPushButton(self.frame_3)
+        self.pushButton_17.setGeometry(QtCore.QRect(10, 210, 75, 23))
+        self.pushButton_17.setObjectName(_fromUtf8("pushButton_17"))
+        self.calendarWidget = QtGui.QCalendarWidget(self.centralwidget)
+        self.calendarWidget.setGeometry(QtCore.QRect(180, 380, 216, 155))
+        self.calendarWidget.setObjectName(_fromUtf8("calendarWidget"))
         self.frame.raise_()
         self.frame_2.raise_()
         self.frame_3.raise_()
@@ -218,6 +224,7 @@ class Ui_MainWindow(object):
         self.pushButton_10.raise_()
         self.comboBox_2.raise_()
         self.pushButton_11.raise_()
+        self.calendarWidget.raise_()
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -256,4 +263,5 @@ class Ui_MainWindow(object):
         self.checkBox_4.setText(_translate("MainWindow", "Client", None))
         self.pushButton_9.setText(_translate("MainWindow", "ClrLog", None))
         self.pushButton_14.setText(_translate("MainWindow", "Queue", None))
+        self.pushButton_17.setText(_translate("MainWindow", "Calendar", None))
 

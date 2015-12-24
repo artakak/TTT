@@ -15,7 +15,7 @@ from jenkinsapi.jenkins import Jenkins
 # import PyQt4 QtCore and QtGui modules
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from ui_test import Ui_MainWindow
 
 
@@ -27,6 +27,7 @@ class Logger(object):
         if not (string == "\n"):
             trstring = QtGui.QApplication.translate("MainWindow", string.strip(), None, QtGui.QApplication.UnicodeUTF8)
             self.output.append(trstring)
+
 
 class MainWindow(QMainWindow):
     """MainWindow inherits QMainWindow"""
@@ -63,6 +64,9 @@ class MainWindow(QMainWindow):
         self.J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft")
         self.ui.comboBox_2.addItems(self.J.keys())
 
+        self.ui.calendarWidget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.WindowSystemMenuHint)
+        #self.ui.calendarWidget.setWindowModality(QtCore.Qt.WindowModal)
+
         self.ui.pushButton.clicked.connect(self.enumver)
         self.ui.pushButton_7.clicked.connect(self.clrlocal_cl)
         self.ui.pushButton_11.clicked.connect(self.jenkins_build)
@@ -77,6 +81,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_12.clicked.connect(lambda : self.start_thread(self.update_db))
         self.ui.pushButton_13.clicked.connect(lambda : self.start_thread(self.stop_cl))
         self.ui.pushButton_14.clicked.connect(lambda : self.start_thread(self.jenkins_queue))
+        self.ui.pushButton_17.clicked.connect(self.calendar)
         self.ui.pushButton_15.clicked.connect(self.deploy_databases)
         self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
 
@@ -88,6 +93,8 @@ class MainWindow(QMainWindow):
                 self.ui.comboBox.addItem(k)
 
         self.DB.close()
+        self.t_time = None
+        self.ui.calendarWidget.selectionChanged.connect(lambda : self.start_thread(self.redmine_anyday))
 
     def deploy_databases(self):
         self.DB = shelve.open('DB.txt')
@@ -147,7 +154,7 @@ class MainWindow(QMainWindow):
         for t in xrange(len(changes)):
             print(str(t+1)+') '+str(changes[t]['msg']).decode('utf8'))
         print('')
-        #print(str(len(threading.enumerate())))
+
 
     def jenkins_build(self):
         j = self.J.get_job(self.ui.comboBox_2.currentText())
@@ -167,6 +174,18 @@ class MainWindow(QMainWindow):
             self.ui.progressBar.setValue(0)
         elif j.is_queued:
             print(self.ui.comboBox_2.currentText()+' Is Queued')
+
+    def calendar(self):
+        self.ui.calendarWidget.show()
+
+    def redmine_anyday(self):
+        self.t_time = str(self.ui.calendarWidget.selectedDate().toPyDate())
+        redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
+        issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open', created_on=str(self.t_time))
+        print('EXPERIUM ISSUES CREATED !!! '+str(self.t_time))
+        for t in issues_open_all_totay:
+            print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
+        print('')
 
     def redmine(self):
         t_time = datetime.date.today()
