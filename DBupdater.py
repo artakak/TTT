@@ -65,6 +65,7 @@ class MainWindow(QMainWindow):
         self.ui.comboBox_2.addItems(self.J.keys())
 
         self.ui.calendarWidget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.WindowSystemMenuHint)
+        self.ui.calendarWidget.setWindowTitle('Calendar for Redmine')
         #self.ui.calendarWidget.setWindowModality(QtCore.Qt.WindowModal)
 
         self.ui.pushButton.clicked.connect(self.enumver)
@@ -190,25 +191,12 @@ class MainWindow(QMainWindow):
     def redmine(self):
         t_time = datetime.date.today()
         redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
-        revpat = r'r\d{5,}'
-        issues_open_me = redmine.issue.filter(status_id='open', CF_19='148')
+        issues_open_me = redmine.issue.filter(status_id='open', assigned_to_id=148)
         issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open', created_on=str(t_time))
         issues_open_all_totay_up = redmine.issue.filter(project_id='experium', status_id='open', updated_on=str(t_time))
-        customt = None
-        print('ISSUES FOR ME!!!')
+        print('ISSUES ASSIGNED TO ME!!!')
         for t in issues_open_me:
-            try:
-                customt = t.custom_fields.get(19)
-                if customt.value == '148':
-                    notes = []
-                    revision = []
-                    journals = t.journals
-                    for k in journals:
-                        notes.append(u' '.join(k.notes).encode('utf8').replace(' ',''))
-                    for n in notes:
-                        revision.append(re.findall(revpat,str(n)))
-                    print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' '+str(max(revision))+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
-            except: customt = None
+            print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
         print('')
 
         print('EXPERIUM ISSUES CREATED TODAY!!! '+str(t_time))

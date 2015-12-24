@@ -604,8 +604,8 @@
     <widget class="QPushButton" name="pushButton_17">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>210</y>
+       <x>100</x>
+       <y>40</y>
        <width>75</width>
        <height>23</height>
       </rect>
@@ -623,6 +623,9 @@
       <width>216</width>
       <height>155</height>
      </rect>
+    </property>
+    <property name="firstDayOfWeek">
+     <enum>Qt::Monday</enum>
     </property>
    </widget>
    <zorder>frame</zorder>
