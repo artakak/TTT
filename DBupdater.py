@@ -68,6 +68,10 @@ class MainWindow(QMainWindow):
         self.ui.calendarWidget.setWindowTitle('Calendar for Redmine')
         #self.ui.calendarWidget.setWindowModality(QtCore.Qt.WindowModal)
 
+        self.ui.widget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
+        self.ui.widget.setWindowTitle('Database Info')
+        self.ui.widget.setWindowModality(QtCore.Qt.WindowModal)
+
         self.ui.pushButton.clicked.connect(self.enumver)
         self.ui.pushButton_7.clicked.connect(self.clrlocal_cl)
         self.ui.pushButton_11.clicked.connect(self.jenkins_build)
@@ -83,7 +87,8 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_13.clicked.connect(lambda : self.start_thread(self.stop_cl))
         self.ui.pushButton_14.clicked.connect(lambda : self.start_thread(self.jenkins_queue))
         self.ui.pushButton_17.clicked.connect(self.calendar)
-        self.ui.pushButton_15.clicked.connect(self.deploy_databases)
+        self.ui.pushButton_15.clicked.connect(self.prep_deploy_databases)
+        self.ui.pushButton_22.clicked.connect(self.deploy_database)
         self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
 
         self.logger = Logger(self.ui.textBrowser)
@@ -97,16 +102,34 @@ class MainWindow(QMainWindow):
         self.t_time = None
         self.ui.calendarWidget.selectionChanged.connect(lambda : self.start_thread(self.redmine_anyday))
 
-    def deploy_databases(self):
+    def prep_deploy_databases(self):
+        self.ui.widget.show()
+        self.ui.pushButton_22.setEnabled(False)
+        self.DB_name, ok = QtGui.QInputDialog.getText(self, 'DBName', 'Enter DB name:')
+        self.ui.lineEdit_9.setText(str(self.DB_name))
+        self.DB_serv_path = QtGui.QFileDialog.getExistingDirectory(self, 'Select DB Server Path','/')
+        self.ui.lineEdit_4.setText(str(self.DB_serv_path))
+        self.DB_data_path = QtGui.QFileDialog.getExistingDirectory(self, 'Select DB Data Path','/')
+        self.ui.lineEdit_5.setText(str(self.DB_data_path))
+        if str(self.DB_name) !='' and str(self.DB_data_path) !='' and str(self.DB_serv_path) !='':
+            self.ui.pushButton_22.setEnabled(True)
+
+    def deploy_database(self):
+        if self.ui.radioButton.isChecked():
+            type_flag = '0'
+        elif self.ui.radioButton_2.isChecked():
+            type_flag = '1'
+        else: return(0)
+        if self.ui.radioButton_4.isChecked():
+            trunk_flag = '0'
+        elif self.ui.radioButton_3.isChecked():
+            trunk_flag = '1'
+        else: return(0)
         self.DB = shelve.open('DB.txt')
-        DB_name = QtGui.QInputDialog.getText(self, 'DBName', 'Enter DB name:')
-        DB_serv_path = QtGui.QFileDialog.getExistingDirectory(self, 'Select DB Server Path','/')
-        DB_data_path = QtGui.QFileDialog.getExistingDirectory(self, 'Select DB Data Path','/')
-        type_flag = QtGui.QInputDialog.getText(self, 'DBType', 'Enter DB type 0-HR,1-KA:')
-        trunk_flag = QtGui.QInputDialog.getText(self, 'DBType', 'Enter DB type 0-TRUNK,1-RELEASE:')
-        self.DB[str(DB_name[0])] = [str(DB_data_path),str(DB_serv_path),str(type_flag[0]),str(trunk_flag[0])]
+        self.DB[str(self.DB_name)] = [str(self.DB_data_path),str(self.DB_serv_path),type_flag,trunk_flag]
         self.DB.close()
-        self.ui.comboBox.addItem(str(DB_name[0]))
+        self.ui.widget.hide()
+        self.ui.comboBox.addItem(str(self.DB_name))
         wdatasrv = open('wdatasrv.par','r')
         wdatasrv1 = open('wdatasrv1.par','w')
         wmetasrv1 = open('wmetasrv1.par','w')
@@ -114,20 +137,20 @@ class MainWindow(QMainWindow):
         srvini = open('exp_srv.ini','r')
         srvini1 = open('exp_srv1.ini','w')
         text = wdatasrv.read()
-        wdatasrv1.write(text.replace('DB_data_path',str(DB_data_path)))
+        wdatasrv1.write(text.replace('DB_data_path',str(self.DB_data_path)))
         text = wmetasrv.read()
-        wmetasrv1.write(text.replace('DB_data_path',str(DB_data_path)))
+        wmetasrv1.write(text.replace('DB_data_path',str(self.DB_data_path)))
         text = srvini.read()
-        srvini1.write(text.replace('DB_serv_path',str(DB_serv_path)))
+        srvini1.write(text.replace('DB_serv_path',str(self.DB_serv_path)))
         srvini.close()
         srvini1.close()
         wdatasrv.close()
         wdatasrv1.close()
         wmetasrv.close()
         wmetasrv1.close()
-        self.wid_write('copy /Y "wdatasrv1.par" "'+str(DB_serv_path)+'\wdatasrv.par"')
-        self.wid_write('copy /Y "wmetasrv1.par" "'+str(DB_serv_path)+'\wmetasrv.par"')
-        self.wid_write('copy /Y "exp_srv1.ini" "'+str(DB_serv_path)+'\exp_srv.ini"')
+        self.wid_write('copy /Y "wdatasrv1.par" "'+str(self.DB_serv_path)+'\wdatasrv.par"')
+        self.wid_write('copy /Y "wmetasrv1.par" "'+str(self.DB_serv_path)+'\wmetasrv.par"')
+        self.wid_write('copy /Y "exp_srv1.ini" "'+str(self.DB_serv_path)+'\exp_srv.ini"')
 
     def uninstall_databases(self):
         self.DB = shelve.open('DB.txt')
@@ -277,12 +300,12 @@ class MainWindow(QMainWindow):
     def update(self):
         self.server = str(self.ui.lineEdit_6.displayText())
         self.stop()
-        print(str(self.trunk_flag[0]))
-        print(str(self.type_flag[0]))
-        if str(self.trunk_flag[0]) == '0':
+        print(str(self.trunk_flag))
+        print(str(self.type_flag))
+        if str(self.trunk_flag) == '0':
             for f in self.srvupd:
                 self.wid_write('copy /Y "'+self.X_serv_trunk_path+f+'" "'+self.server+f+'"')
-        if str(self.trunk_flag[0]) == '1':
+        if str(self.trunk_flag) == '1':
             for f in self.srvupd:
                 self.wid_write('copy /Y "'+self.X_serv_release_path+f+'" "'+self.server+f+'"')
         if self.ui.checkBox.isChecked():
@@ -294,17 +317,17 @@ class MainWindow(QMainWindow):
         data_path = str(self.ui.lineEdit_3.displayText())
         self.server = str(self.ui.lineEdit_6.displayText())
         self.stop()
-        if str(self.trunk_flag[0]) == '0':
+        if str(self.trunk_flag) == '0':
             X_path = self.data_trunk_path
-            if str(self.type_flag[0]) == '0':
+            if str(self.type_flag) == '0':
                 base1 = 'db0hr.zip'
-            if str(self.type_flag[0]) == '1':
+            if str(self.type_flag) == '1':
                 base1 = 'db0ra.zip'
-        if str(self.trunk_flag[0]) == '1':
+        if str(self.trunk_flag) == '1':
             X_path = self.data_release_path
-            if str(self.type_flag[0]) == '0':
+            if str(self.type_flag) == '0':
                 base1 = 'db0hr.zip'
-            if str(self.type_flag[0]) == '1':
+            if str(self.type_flag) == '1':
                 base1 = 'db0ra.zip'
         base = r'\\'+base1
         self.wid_write('RMDIR /s /Q '+data_path+'\BACKUPDATA')
