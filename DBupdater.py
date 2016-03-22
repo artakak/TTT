@@ -7,6 +7,7 @@ import time
 import subprocess
 import threading
 import datetime
+import win32clipboard
 from zipfile import *
 #import RedmineAPI
 from redmine import Redmine
@@ -64,13 +65,16 @@ class MainWindow(QMainWindow):
         self.J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft")
         self.ui.comboBox_2.addItems(self.J.keys())
 
-        self.ui.calendarWidget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.WindowSystemMenuHint)
+        self.ui.calendarWidget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
         self.ui.calendarWidget.setWindowTitle('Calendar for Redmine')
-        #self.ui.calendarWidget.setWindowModality(QtCore.Qt.WindowModal)
 
         self.ui.widget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
         self.ui.widget.setWindowTitle('Database Info')
         self.ui.widget.setWindowModality(QtCore.Qt.WindowModal)
+
+        self.ui.widget_2.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
+        self.ui.widget_2.setWindowTitle('API Options')
+        self.ui.widget_2.setWindowModality(QtCore.Qt.WindowModal)
 
         self.ui.pushButton.clicked.connect(self.enumver)
         self.ui.pushButton_7.clicked.connect(self.clrlocal_cl)
@@ -86,10 +90,13 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_12.clicked.connect(lambda : self.start_thread(self.update_db))
         self.ui.pushButton_13.clicked.connect(lambda : self.start_thread(self.stop_cl))
         self.ui.pushButton_14.clicked.connect(lambda : self.start_thread(self.jenkins_queue))
+        self.ui.pushButton_18.clicked.connect(lambda : self.start_thread(self.ess))
+        self.ui.pushButton_19.clicked.connect(self.ui.widget_2.show)
         self.ui.pushButton_17.clicked.connect(self.calendar)
         self.ui.pushButton_15.clicked.connect(self.prep_deploy_databases)
         self.ui.pushButton_22.clicked.connect(self.deploy_database)
         self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
+        self.ui.pushButton_24.clicked.connect(self.clear_opt)
 
         self.logger = Logger(self.ui.textBrowser)
         sys.stdout = self.logger
@@ -179,6 +186,23 @@ class MainWindow(QMainWindow):
             print(str(t+1)+') '+str(changes[t]['msg']).decode('utf8'))
         print('')
 
+    def ess(self):
+        import requests
+
+        url = 'http://msmeta6.experium.ru/SupportSrv/SupportSrv.svc/Support/control'
+        payload = {'command':'grep'}
+        ess = ''
+
+        win32clipboard.OpenClipboard()
+        ess = win32clipboard.GetClipboardData()
+        win32clipboard.CloseClipboard()
+
+        print('***'+ess+'***')
+
+        r = requests.post(url, auth=('support', 'c5128437'), params=payload, json={'id': ''+str(ess)+''})
+        print(r.text.encode('latin1'))
+        print(r.status_code)
+
 
     def jenkins_build(self):
         j = self.J.get_job(self.ui.comboBox_2.currentText())
@@ -194,6 +218,7 @@ class MainWindow(QMainWindow):
                 self.ui.progressBar.setValue(i)
                 i+=5
                 if i == 100: i = 0
+                time.sleep(10)
             print(self.ui.comboBox_2.currentText()+' Is Finished')
             self.ui.progressBar.setValue(0)
         elif j.is_queued:
@@ -236,11 +261,13 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_4.isChecked():
             if self.ui.checkBox_2.isChecked():
                 self.wid_write("taskkill /im experium.exe")
+                time.sleep(3)
                 for f in self.clientupd:
                     self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
                     self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
             else:
                 self.wid_write("taskkill /im experium.exe")
+                time.sleep(3)
                 for f in self.clientupd:
                     self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
                     self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
@@ -259,9 +286,14 @@ class MainWindow(QMainWindow):
         print('DONE!!!')
 
     def start_cl(self):
-        os.startfile(self.cl_exp_path+'\experium.exe')
+        for i in range(int(self.ui.comboBox_3.currentIndex())+1):
+            os.startfile(self.cl_exp_path+'\experium.exe')
         if self.ui.checkBox_3.isChecked():
             os.startfile(self.cl_exp_path+'\exp_srv.exe')
+            time.sleep(10)
+            self.wid_write("taskkill /im wdatacnv.exe")
+            time.sleep(3)
+            os.startfile(self.cl_exp_path+'\wdatacnv.exe')
 
     def stop_cl(self):
         self.wid_write("taskkill /im experium.exe")
@@ -351,9 +383,19 @@ class MainWindow(QMainWindow):
 
     def enumver(self):
         versions = [re.findall(r'\d{4,}',f) for f in os.listdir(self.trunk_expcl_path)]
-        self.ui.lineEdit.setText(str(max(versions)))
+        self.ui.lineEdit.setText("TRUNK "+str(max(versions)))
         versions = [re.findall(r'\d{4,}',f) for f in os.listdir(self.release_expcl_path)]
-        self.ui.lineEdit_2.setText(str(max(versions)))
+        self.ui.lineEdit_2.setText("RELEASE "+str(max(versions)))
+
+    def clear_opt(self):
+        self.ui.lineEdit_10.clear()
+        self.ui.lineEdit_11.clear()
+        self.ui.lineEdit_12.clear()
+        self.ui.lineEdit_13.clear()
+        self.ui.lineEdit_14.clear()
+
+    def save_opt(self):
+        adf
 
     def __del__(self):
         self.ui = None
