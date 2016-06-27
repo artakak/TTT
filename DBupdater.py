@@ -6,17 +6,18 @@ import shelve
 import time
 import subprocess
 import threading
+
 import datetime
 import win32clipboard
 from zipfile import *
 #import RedmineAPI
-from redmine import Redmine
 #import JenkinsAPI
 from jenkinsapi.jenkins import Jenkins
 # import PyQt4 QtCore and QtGui modules
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4 import QtGui, QtCore
+from redmine import Redmine
 from ui_test import Ui_MainWindow
 
 
@@ -58,7 +59,7 @@ class MainWindow(QMainWindow):
         self.data_release_path = r'X:\ExperiumRelease\DB'
         self.X_serv_release_path = r'X:\winserverexe\newexe'
         self.X_serv_trunk_path = r'X:\winserverexe\newexe\trunkexe'
-        self.clientupd = [r'\Experium.exe',r'\expenu.dll',r'\exprus.dll',r'\GCalDav.dll',r'\MailEngine.dll',r'\SMSEngine.dll']
+        self.clientupd = [r'\Experium.exe',r'\expenu.dll',r'\exprus.dll',r'\GCalDav.dll',r'\MailEngine.dll',r'\SMSEngine.dll',r'\Telephony.dll']
         self.srvupd = [r'\exp_srv.exe',r'\sdatacnv.exe',r'\sdatasrv.exe',r'\sexpsrv.exe',r'\smetasrch.exe',r'\smetasrv.exe',r'\srmeta.exe',r'\wcnvnode.exe',r'\wdatacnv.exe',r'\wdatasrv.exe',r'\wmetasrch.exe',r'\wmetasrv.exe',r'\wrmeta.exe']
         self.localdatas = [r'C:\Users\win7_test\AppData\Roaming\ExperiumGr\Client',r'C:\Users\win7_test\AppData\Roaming\Experium\Client']
 
@@ -80,17 +81,17 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_7.clicked.connect(self.clrlocal_cl)
         self.ui.pushButton_11.clicked.connect(self.jenkins_build)
         self.ui.pushButton_9.clicked.connect(self.ui.textBrowser.clear)
-        self.ui.pushButton_3.clicked.connect(lambda : self.start_thread(self.start))
-        self.ui.pushButton_4.clicked.connect(lambda : self.start_thread(self.stop))
-        self.ui.pushButton_6.clicked.connect(lambda : self.start_thread(self.update_cl))
-        self.ui.pushButton_5.clicked.connect(lambda : self.start_thread(self.start_cl))
-        self.ui.pushButton_2.clicked.connect(lambda : self.start_thread(self.update))
-        self.ui.pushButton_8.clicked.connect(lambda : self.start_thread(self.redmine))
-        self.ui.pushButton_10.clicked.connect(lambda : self.start_thread(self.jenkins))
-        self.ui.pushButton_12.clicked.connect(lambda : self.start_thread(self.update_db))
-        self.ui.pushButton_13.clicked.connect(lambda : self.start_thread(self.stop_cl))
-        self.ui.pushButton_14.clicked.connect(lambda : self.start_thread(self.jenkins_queue))
-        self.ui.pushButton_18.clicked.connect(lambda : self.start_thread(self.ess))
+        self.ui.pushButton_3.clicked.connect(lambda: self.start_thread(self.start))
+        self.ui.pushButton_4.clicked.connect(lambda: self.start_thread(self.stop))
+        self.ui.pushButton_6.clicked.connect(lambda: self.start_thread(self.update_cl))
+        self.ui.pushButton_5.clicked.connect(lambda: self.start_thread(self.start_cl))
+        self.ui.pushButton_2.clicked.connect(lambda: self.start_thread(self.update))
+        self.ui.pushButton_10.clicked.connect(self.jenkins)
+        self.ui.pushButton_8.clicked.connect(self.redmine)
+        self.ui.pushButton_12.clicked.connect(lambda: self.start_thread(self.update_db))
+        self.ui.pushButton_13.clicked.connect(lambda: self.start_thread(self.stop_cl))
+        self.ui.pushButton_14.clicked.connect(lambda: self.start_thread(self.jenkins_queue))
+        self.ui.pushButton_18.clicked.connect(lambda: self.start_thread(self.ess))
         self.ui.pushButton_19.clicked.connect(self.ui.widget_2.show)
         self.ui.pushButton_17.clicked.connect(self.calendar)
         self.ui.pushButton_15.clicked.connect(self.prep_deploy_databases)
@@ -107,7 +108,11 @@ class MainWindow(QMainWindow):
 
         self.DB.close()
         self.t_time = None
-        self.ui.calendarWidget.selectionChanged.connect(lambda : self.start_thread(self.redmine_anyday))
+        self.ui.calendarWidget.selectionChanged.connect(lambda: self.start_thread(self.redmine_anyday))
+
+
+    def output_to_box(self, text):
+        print(text.toUtf8())
 
     def prep_deploy_databases(self):
         self.ui.widget.show()
@@ -155,9 +160,9 @@ class MainWindow(QMainWindow):
         wdatasrv1.close()
         wmetasrv.close()
         wmetasrv1.close()
-        self.wid_write('copy /Y "wdatasrv1.par" "'+str(self.DB_serv_path)+'\wdatasrv.par"')
-        self.wid_write('copy /Y "wmetasrv1.par" "'+str(self.DB_serv_path)+'\wmetasrv.par"')
-        self.wid_write('copy /Y "exp_srv1.ini" "'+str(self.DB_serv_path)+'\exp_srv.ini"')
+        self.wid_write('copy /Y "wdatasrv1.par" "%s\wdatasrv.par"') % str(self.DB_serv_path)
+        self.wid_write('copy /Y "wmetasrv1.par" "%s\wmetasrv.par"') % str(self.DB_serv_path)
+        self.wid_write('copy /Y "exp_srv1.ini" "%s\exp_srv.ini"') % str(self.DB_serv_path)
 
     def uninstall_databases(self):
         self.DB = shelve.open('DB.txt')
@@ -178,14 +183,14 @@ class MainWindow(QMainWindow):
             self.wid_write('RMDIR /s /Q '+f)
 
     def jenkins(self):
-        j = self.J.get_job(self.ui.comboBox_2.currentText())
-        q = j.get_last_good_build()
-        print('Last good build of '+self.ui.comboBox_2.currentText()+' - '+str(q)+' SVN REV - '+str(q._get_svn_rev()))
-        changes = q.get_changeset_items()
-        for t in xrange(len(changes)):
-            print(str(t+1)+') '+str(changes[t]['msg']).decode('utf8'))
-        print('')
+        self.thread2 = Thread2(self.ui.comboBox_2.currentText())
+        self.thread2.message2[str].connect(self.output_to_box)
+        self.thread2.start()
 
+    def redmine(self):
+        self.thread1 = Thread1(self)
+        self.thread1.message1[str].connect(self.output_to_box)
+        self.thread1.start()
     def ess(self):
         import requests
 
@@ -212,17 +217,12 @@ class MainWindow(QMainWindow):
     def jenkins_queue(self):
         j = self.J.get_job(self.ui.comboBox_2.currentText())
         if j.is_running():
-            print(self.ui.comboBox_2.currentText()+' Is Running')
-            i = 5
+            print('%s Is Running' % self.ui.comboBox_2.currentText())
             while j.is_running():
-                self.ui.progressBar.setValue(i)
-                i+=5
-                if i == 100: i = 0
                 time.sleep(10)
-            print(self.ui.comboBox_2.currentText()+' Is Finished')
-            self.ui.progressBar.setValue(0)
+            print('%s Is Finished' % self.ui.comboBox_2.currentText())
         elif j.is_queued:
-            print(self.ui.comboBox_2.currentText()+' Is Queued')
+            print('%s Is Queued' % self.ui.comboBox_2.currentText())
 
     def calendar(self):
         self.ui.calendarWidget.show()
@@ -233,28 +233,7 @@ class MainWindow(QMainWindow):
         issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open', created_on=str(self.t_time))
         print('EXPERIUM ISSUES CREATED !!! '+str(self.t_time))
         for t in issues_open_all_totay:
-            print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
-        print('')
-
-    def redmine(self):
-        t_time = datetime.date.today()
-        redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
-        issues_open_me = redmine.issue.filter(status_id='open', assigned_to_id=148)
-        issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open', created_on=str(t_time))
-        issues_open_all_totay_up = redmine.issue.filter(project_id='experium', status_id='open', updated_on=str(t_time))
-        print('ISSUES ASSIGNED TO ME!!!')
-        for t in issues_open_me:
-            print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
-        print('')
-
-        print('EXPERIUM ISSUES CREATED TODAY!!! '+str(t_time))
-        for t in issues_open_all_totay:
-            print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
-        print('')
-
-        print('EXPERIUM ISSUES UPDATE TODAY!!! '+str(t_time))
-        for t in issues_open_all_totay_up:
-            print('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a>'+' ***'+str(t.status)+'*** '+str(t).decode('utf8'))
+            print('<a href="http://help.heliosoft.ru/issues/%s">%s</a> ***%s*** %s') % (str(t.id), str(t.id), str(t.status), str(t).decode('utf8'))
         print('')
 
     def update_cl(self):
@@ -393,12 +372,60 @@ class MainWindow(QMainWindow):
         self.ui.lineEdit_12.clear()
         self.ui.lineEdit_13.clear()
         self.ui.lineEdit_14.clear()
+        self.test = QtGui.QFileDialog.getOpenFileName(self, 'Выберите файл для отправки')
+        print (self.test)
 
     def save_opt(self):
-        adf
+        sfsdfdsf
 
     def __del__(self):
         self.ui = None
+
+class Thread1(QtCore.QThread):
+    def __del__(self):
+        self.wait()
+    message1 = QtCore.pyqtSignal(str)
+
+    def run(self):
+        t_time = datetime.date.today()
+        redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
+        issues_open_me = redmine.issue.filter(status_id='open', assigned_to_id=148)
+        issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open',
+                                                         created_on=str(t_time))
+        issues_open_all_totay_up = redmine.issue.filter(project_id='experium', status_id='open',
+                                                            updated_on=str(t_time))
+        self.message1.emit('ISSUES ASSIGNED TO ME!!!')
+        for t in issues_open_me:
+            self.message1.emit('<a href="http://help.heliosoft.ru/issues/' + str(t.id) + '">' + str(t.id) + '</a> ***' + str(t.status) + '*** ' + str(t).decode('utf8'))
+
+        self.message1.emit('\n\nEXPERIUM ISSUES CREATED TODAY!!! ' + str(t_time))
+        for t in issues_open_all_totay:
+            self.message1.emit('<a href="http://help.heliosoft.ru/issues/' + str(t.id) + '">' + str(t.id) + '</a> ***' + str(t.status) + '*** ' + str(t).decode('utf8'))
+
+        self.message1.emit('\n\nEXPERIUM ISSUES UPDATE TODAY!!! ' + str(t_time))
+        for t in issues_open_all_totay_up:
+            self.message1.emit('<a href="http://help.heliosoft.ru/issues/' + str(t.id) + '">' + str(t.id) + '</a> ***' + str(t.status) + '*** ' + str(t).decode('utf8'))
+
+
+class Thread2(QtCore.QThread):
+    def __init__(self, stori):
+        QtCore.QThread.__init__(self)
+        self.stori = stori
+
+    def __del__(self):
+        self.wait()
+
+    J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft")
+    message2 = QtCore.pyqtSignal(str)
+
+    def run(self):
+        j = self.J.get_job(self.stori)
+        q = j.get_last_good_build()
+        self.message2.emit('Last good build of '+self.stori+' - '+str(q)+' SVN REV - '+str(q._get_svn_rev()))
+        changes = q.get_changeset_items()
+        for t in xrange(len(changes)):
+            self.message2.emit('\n'+str(t + 1)+str(changes[t]['msg']).decode('utf8'))
+        self.message2.emit('')
 
 
 #-----------------------------------------------------#
