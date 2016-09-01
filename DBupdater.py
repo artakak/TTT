@@ -46,9 +46,7 @@ class MainWindow(QMainWindow):
         self.trunk_expcl_path = r'X:\ExperiumTrunk'
         self.release_expcl_path = r'X:\ExperiumRelease'
         self.cl_exp_path = r'C:\Program Files\Experium'
-        self.cl_expgr_path = r'C:\Program Files\ExperiumGr'
         self.ui.lineEdit_7.setText(self.cl_exp_path)
-        self.ui.lineEdit_8.setText(self.cl_expgr_path)
         self.ui.lineEdit_3.setText(self.DB['HRM_Trunk'][0])
         self.ui.lineEdit_6.setText(self.DB['HRM_Trunk'][1])
         self.type_flag = (self.DB['HRM_Trunk'][2])
@@ -61,7 +59,7 @@ class MainWindow(QMainWindow):
         self.X_serv_trunk_path = r'X:\winserverexe\newexe\trunkexe'
         self.clientupd = [r'\Experium.exe',r'\expenu.dll',r'\exprus.dll',r'\GCalDav.dll',r'\MailEngine.dll',r'\SMSEngine.dll',r'\Telephony.dll']
         self.srvupd = [r'\exp_srv.exe',r'\sdatacnv.exe',r'\sdatasrv.exe',r'\sexpsrv.exe',r'\smetasrch.exe',r'\smetasrv.exe',r'\srmeta.exe',r'\wcnvnode.exe',r'\wdatacnv.exe',r'\wdatasrv.exe',r'\wmetasrch.exe',r'\wmetasrv.exe',r'\wrmeta.exe']
-        self.localdatas = [r'C:\Users\win7_test\AppData\Roaming\ExperiumGr\Client',r'C:\Users\win7_test\AppData\Roaming\Experium\Client']
+        self.localdatas = [r'C:\Users\win7_test\AppData\Roaming\Experium\Client']
 
         self.J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft")
         self.ui.comboBox_2.addItems(self.J.keys())
@@ -98,6 +96,13 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_22.clicked.connect(self.deploy_database)
         self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
         self.ui.pushButton_24.clicked.connect(self.clear_opt)
+        self.ui.comboBox_4.customContextMenuRequested.connect(self.openMenu)
+        try:
+            self.ui.comboBox_4.addItems(self.DB['SConfig'])
+            if self.ui.comboBox_4.currentText() == '':
+                self.ui.comboBox_4.addItem('127.0.0.1')
+        except:
+            self.ui.comboBox_4.addItem('127.0.0.1')
 
         self.logger = Logger(self.ui.textBrowser)
         sys.stdout = self.logger
@@ -110,6 +115,20 @@ class MainWindow(QMainWindow):
         self.t_time = None
         self.ui.calendarWidget.selectionChanged.connect(lambda: self.start_thread(self.redmine_anyday))
 
+    def openMenu(self, position):
+        menu = QMenu()
+        deleteAction = menu.addAction("Delete")
+        clearAction = menu.addAction("ClearAll")
+        savetoDBAction = menu.addAction("SaveToDB")
+        action = menu.exec_(self.ui.comboBox_4.mapToGlobal(position))
+        if action == deleteAction:
+            self.ui.comboBox_4.removeItem(self.ui.comboBox_4.currentIndex())
+        elif action == clearAction:
+            self.ui.comboBox_4.clear()
+        elif action == savetoDBAction:
+            DB = shelve.open('DB.txt')
+            DB['SConfig'] = [self.ui.comboBox_4.itemText(i) for i in range(self.ui.comboBox_4.count())]
+            DB.close()
 
     def output_to_box(self, text):
         print(text.toUtf8())
@@ -183,7 +202,7 @@ class MainWindow(QMainWindow):
             self.wid_write('RMDIR /s /Q '+f)
 
     def jenkins(self):
-        self.thread2 = Thread2(self.ui.comboBox_2.currentText())
+        self.thread2 = Thread2(self)
         self.thread2.message2[str].connect(self.output_to_box)
         self.thread2.start()
 
@@ -191,6 +210,7 @@ class MainWindow(QMainWindow):
         self.thread1 = Thread1(self)
         self.thread1.message1[str].connect(self.output_to_box)
         self.thread1.start()
+
     def ess(self):
         import requests
 
@@ -228,13 +248,9 @@ class MainWindow(QMainWindow):
         self.ui.calendarWidget.show()
 
     def redmine_anyday(self):
-        self.t_time = str(self.ui.calendarWidget.selectedDate().toPyDate())
-        redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
-        issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open', created_on=str(self.t_time))
-        print('EXPERIUM ISSUES CREATED !!! '+str(self.t_time))
-        for t in issues_open_all_totay:
-            print('<a href="http://help.heliosoft.ru/issues/%s">%s</a> ***%s*** %s') % (str(t.id), str(t.id), str(t.status), str(t).decode('utf8'))
-        print('')
+        self.thread3 = Thread3(self)
+        self.thread3.message3[str].connect(self.output_to_box)
+        self.thread3.start()
 
     def update_cl(self):
         if self.ui.checkBox_4.isChecked():
@@ -243,19 +259,18 @@ class MainWindow(QMainWindow):
                 time.sleep(3)
                 for f in self.clientupd:
                     self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
-                    self.wid_write('copy /Y "'+self.trunk_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
             else:
                 self.wid_write("taskkill /im experium.exe")
                 time.sleep(3)
                 for f in self.clientupd:
                     self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_exp_path+f+'"')
-                    self.wid_write('copy /Y "'+self.release_expcl_path+f+'" "'+self.cl_expgr_path+f+'"')
             for f in self.localdatas:
                 self.wid_write('RMDIR /s /Q '+f)
 
         if self.ui.checkBox_3.isChecked():
             self.wid_write("taskkill /t /im exp_srv.exe")
             time.sleep(15)
+            self.wid_write("taskkill /t /im wdatacnv.exe")
             if self.ui.checkBox_2.isChecked():
                 for f in self.srvupd:
                     self.wid_write('copy /Y "'+self.X_serv_trunk_path+f+'" "'+self.cl_exp_path+f+'"')
@@ -266,6 +281,15 @@ class MainWindow(QMainWindow):
 
     def start_cl(self):
         for i in range(int(self.ui.comboBox_3.currentIndex())+1):
+            config = open(self.cl_exp_path+'\config.ini','r')
+            regex = re.compile(r"^.*Server.*$")
+            text2 = []
+            for line in config.readlines():
+                text2.append(regex.sub('Server='+str(re.findall('[^ ()]+', str(self.ui.comboBox_4.currentText()))[0]), line))
+            config.close()
+            config = open(self.cl_exp_path + '\config.ini', 'w')
+            config.writelines(text2)
+            config.close()
             os.startfile(self.cl_exp_path+'\experium.exe')
         if self.ui.checkBox_3.isChecked():
             os.startfile(self.cl_exp_path+'\exp_srv.exe')
@@ -279,6 +303,7 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_3.isChecked():
             self.wid_write("taskkill /t /im exp_srv.exe")
             time.sleep(15)
+            self.wid_write("taskkill /t /im wdatacnv.exe")
         print('DONE!!!')
 
     def start(self):
@@ -293,7 +318,6 @@ class MainWindow(QMainWindow):
         self.wid_write('sc create SDataCnv binPath= "'+self.server+'\sdatacnv.exe" type= own start= demand error= normal"')
         self.wid_write('sc create ExperiumLauncherService binPath= "'+self.server+'\sexpsrv.exe" type= own start= auto error= normal"')
         self.wid_write('sc start "ExperiumLauncherService"')
-        os.startfile(self.cl_exp_path+'\experium.exe')
         print('DONE!!!')
 
     def stop(self):
@@ -376,7 +400,7 @@ class MainWindow(QMainWindow):
         print (self.test)
 
     def save_opt(self):
-        sfsdfdsf
+        """TODO"""
 
     def __del__(self):
         self.ui = None
@@ -408,24 +432,43 @@ class Thread1(QtCore.QThread):
 
 
 class Thread2(QtCore.QThread):
-    def __init__(self, stori):
-        QtCore.QThread.__init__(self)
-        self.stori = stori
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.Job = w.ui.comboBox_2.currentText()
+        self.J = w.J
 
     def __del__(self):
         self.wait()
 
-    J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft")
     message2 = QtCore.pyqtSignal(str)
 
     def run(self):
-        j = self.J.get_job(self.stori)
+        j = self.J.get_job(self.Job)
         q = j.get_last_good_build()
-        self.message2.emit('Last good build of '+self.stori+' - '+str(q)+' SVN REV - '+str(q._get_svn_rev()))
+        self.message2.emit('Last good build of '+self.Job+' - '+str(q)+' SVN REV - '+str(q._get_svn_rev()))
         changes = q.get_changeset_items()
         for t in xrange(len(changes)):
             self.message2.emit('\n'+str(t + 1)+str(changes[t]['msg']).decode('utf8'))
         self.message2.emit('')
+
+
+class Thread3(QtCore.QThread):
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.date = w.ui.calendarWidget.selectedDate().toPyDate()
+
+    def __del__(self):
+        self.wait()
+
+    message3 = QtCore.pyqtSignal(str)
+
+    def run(self):
+        redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
+        issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open', created_on=self.date)
+        self.message3.emit('EXPERIUM ISSUES CREATED !!! ' + str(self.date))
+        for t in issues_open_all_totay:
+            self.message3.emit('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a> ***'+str(t.status)+'*** '+str(t).decode('utf8'))
+        self.message3.emit('')
 
 
 #-----------------------------------------------------#

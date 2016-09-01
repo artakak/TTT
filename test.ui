@@ -25,6 +25,13 @@
   <property name="windowTitle">
    <string>Form1</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>Database.ico</normaloff>Database.ico</iconset>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label">
     <property name="geometry">
@@ -103,12 +110,12 @@
      <rect>
       <x>440</x>
       <y>32</y>
-      <width>41</width>
+      <width>61</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Cllocal</string>
+     <string>Client path</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_2">
@@ -182,12 +189,12 @@
      <rect>
       <x>440</x>
       <y>90</y>
-      <width>49</width>
+      <width>71</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>ClRemote</string>
+     <string>Server config</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -309,19 +316,6 @@
      <rect>
       <x>440</x>
       <y>62</y>
-      <width>281</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_8">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>120</y>
       <width>281</width>
       <height>20</height>
      </rect>
@@ -561,6 +555,22 @@
        <string>3</string>
       </property>
      </item>
+    </widget>
+    <widget class="QComboBox" name="comboBox_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>281</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::CustomContextMenu</enum>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
     </widget>
    </widget>
    <widget class="QFrame" name="frame_3">
@@ -968,7 +978,6 @@
    <zorder>checkBox_3</zorder>
    <zorder>lineEdit_6</zorder>
    <zorder>lineEdit_7</zorder>
-   <zorder>lineEdit_8</zorder>
    <zorder>textBrowser</zorder>
    <zorder>pushButton_8</zorder>
    <zorder>label_4</zorder>
