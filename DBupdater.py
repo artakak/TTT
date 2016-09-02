@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_8.clicked.connect(self.redmine)
         self.ui.pushButton_12.clicked.connect(lambda: self.start_thread(self.update_db))
         self.ui.pushButton_13.clicked.connect(lambda: self.start_thread(self.stop_cl))
-        self.ui.pushButton_14.clicked.connect(lambda: self.start_thread(self.jenkins_queue))
+        self.ui.pushButton_14.clicked.connect(self.jenkins_queue)
         self.ui.pushButton_18.clicked.connect(lambda: self.start_thread(self.ess))
         self.ui.pushButton_19.clicked.connect(self.ui.widget_2.show)
         self.ui.pushButton_17.clicked.connect(self.calendar)
@@ -114,6 +114,21 @@ class MainWindow(QMainWindow):
         self.DB.close()
         self.t_time = None
         self.ui.calendarWidget.selectionChanged.connect(lambda: self.start_thread(self.redmine_anyday))
+
+        self.movie = QMovie("exp.gif", QByteArray(), self)
+        self.movie.setCacheMode(QMovie.CacheAll)
+        self.movie.setSpeed(100)
+        self.ui.label_8.setMovie(self.movie)
+        #self.movie.start()
+
+    def mstart(self):
+        """sart animnation"""
+        self.movie.start()
+
+    def mstop(self):
+        """stop the animation"""
+        self.movie.stop()
+
 
     def openMenu(self, position):
         menu = QMenu()
@@ -235,14 +250,11 @@ class MainWindow(QMainWindow):
             self.J.build_job(self.ui.comboBox_2.currentText())
 
     def jenkins_queue(self):
-        j = self.J.get_job(self.ui.comboBox_2.currentText())
-        if j.is_running():
-            print('%s Is Running' % self.ui.comboBox_2.currentText())
-            while j.is_running():
-                time.sleep(10)
-            print('%s Is Finished' % self.ui.comboBox_2.currentText())
-        elif j.is_queued:
-            print('%s Is Queued' % self.ui.comboBox_2.currentText())
+        self.thread4 = Thread4(self)
+        self.thread4.message4[str].connect(self.output_to_box)
+        self.thread4.signal_start[str].connect(self.mstart)
+        self.thread4.signal_stop[str].connect(self.mstop)
+        self.thread4.start()
 
     def calendar(self):
         self.ui.calendarWidget.show()
@@ -280,16 +292,16 @@ class MainWindow(QMainWindow):
         print('DONE!!!')
 
     def start_cl(self):
+        config = open(self.cl_exp_path + '\config.ini', 'r')
+        regex = re.compile(r"^.*Server.*$")
+        text2 = []
+        for line in config.readlines():
+            text2.append(regex.sub('Server=' + str(re.findall('[^ ()]+', str(self.ui.comboBox_4.currentText()))[0]), line))
+        config.close()
+        config = open(self.cl_exp_path + '\config.ini', 'w')
+        config.writelines(text2)
+        config.close()
         for i in range(int(self.ui.comboBox_3.currentIndex())+1):
-            config = open(self.cl_exp_path+'\config.ini','r')
-            regex = re.compile(r"^.*Server.*$")
-            text2 = []
-            for line in config.readlines():
-                text2.append(regex.sub('Server='+str(re.findall('[^ ()]+', str(self.ui.comboBox_4.currentText()))[0]), line))
-            config.close()
-            config = open(self.cl_exp_path + '\config.ini', 'w')
-            config.writelines(text2)
-            config.close()
             os.startfile(self.cl_exp_path+'\experium.exe')
         if self.ui.checkBox_3.isChecked():
             os.startfile(self.cl_exp_path+'\exp_srv.exe')
@@ -469,6 +481,33 @@ class Thread3(QtCore.QThread):
         for t in issues_open_all_totay:
             self.message3.emit('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a> ***'+str(t.status)+'*** '+str(t).decode('utf8'))
         self.message3.emit('')
+
+class Thread4(QtCore.QThread):
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.Job = w.ui.comboBox_2.currentText()
+        self.J = w.J
+
+    def __del__(self):
+        self.wait()
+
+    message4 = QtCore.pyqtSignal(str)
+    signal_start = QtCore.pyqtSignal(str)
+    signal_stop = QtCore.pyqtSignal(str)
+
+    def run(self):
+        j = self.J.get_job(self.Job)
+        if j.is_running():
+            self.message4.emit('%s Is Running' % self.Job)
+            self.signal_start.emit('job_start')
+            while j.is_running():
+                time.sleep(10)
+            self.message4.emit('%s Is Finished' % self.Job)
+            self.signal_stop.emit('job_stop')
+        elif j.is_queued:
+            self.message4.emit('%s Is Queued' % self.Job)
+
+
 
 
 #-----------------------------------------------------#

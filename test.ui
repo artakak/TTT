@@ -95,9 +95,9 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>264</x>
       <y>30</y>
-      <width>75</width>
+      <width>151</width>
       <height>23</height>
      </rect>
     </property>
@@ -392,7 +392,7 @@
      <rect>
       <x>830</x>
       <y>80</y>
-      <width>151</width>
+      <width>171</width>
       <height>22</height>
      </rect>
     </property>
@@ -657,6 +657,22 @@
      </property>
      <property name="text">
       <string>OPTIONS</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>130</y>
+       <width>51</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
@@ -954,6 +970,9 @@
      </property>
     </widget>
    </widget>
+   <zorder>widget</zorder>
+   <zorder>widget_2</zorder>
+   <zorder>calendarWidget</zorder>
    <zorder>frame</zorder>
    <zorder>frame_2</zorder>
    <zorder>frame_3</zorder>
@@ -984,9 +1003,6 @@
    <zorder>pushButton_10</zorder>
    <zorder>comboBox_2</zorder>
    <zorder>pushButton_11</zorder>
-   <zorder>calendarWidget</zorder>
-   <zorder>widget</zorder>
-   <zorder>widget_2</zorder>
   </widget>
  </widget>
  <resources/>
