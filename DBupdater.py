@@ -6,14 +6,11 @@ import shelve
 import time
 import subprocess
 import threading
-
 import datetime
 import win32clipboard
 from zipfile import *
-#import RedmineAPI
-#import JenkinsAPI
 from jenkinsapi.jenkins import Jenkins
-# import PyQt4 QtCore and QtGui modules
+from jenkinsapi.utils.crumb_requester import CrumbRequester
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4 import QtGui, QtCore
@@ -61,7 +58,9 @@ class MainWindow(QMainWindow):
         self.srvupd = [r'\exp_srv.exe',r'\sdatacnv.exe',r'\sdatasrv.exe',r'\sexpsrv.exe',r'\smetasrch.exe',r'\smetasrv.exe',r'\srmeta.exe',r'\wcnvnode.exe',r'\wdatacnv.exe',r'\wdatasrv.exe',r'\wmetasrch.exe',r'\wmetasrv.exe',r'\wrmeta.exe']
         self.localdatas = [r'C:\Users\win7_test\AppData\Roaming\Experium\Client']
 
-        self.J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft")
+        self.J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft",
+                         requester=CrumbRequester(baseurl='http://buildsrv.experium.ru/', username="golubkin",
+                                                  password="aquasoft"))
         self.ui.comboBox_2.addItems(self.J.keys())
 
         self.ui.calendarWidget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
@@ -96,7 +95,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_22.clicked.connect(self.deploy_database)
         self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
         self.ui.pushButton_24.clicked.connect(self.clear_opt)
-        self.ui.comboBox_4.customContextMenuRequested.connect(self.openMenu)
+        self.ui.comboBox_4.customContextMenuRequested.connect(self.open_menu)
         try:
             self.ui.comboBox_4.addItems(self.DB['SConfig'])
             if self.ui.comboBox_4.currentText() == '':
@@ -114,12 +113,13 @@ class MainWindow(QMainWindow):
         self.DB.close()
         self.t_time = None
         self.ui.calendarWidget.selectionChanged.connect(lambda: self.start_thread(self.redmine_anyday))
+        #self.ui.tabWidget.setStyleSheet("background-image: url(./Experium.jpg)")
+        self.ui.textBrowser.setStyleSheet("background-color: yellow; color: black")
 
         self.movie = QMovie("exp.gif", QByteArray(), self)
         self.movie.setCacheMode(QMovie.CacheAll)
         self.movie.setSpeed(100)
         self.ui.label_8.setMovie(self.movie)
-        #self.movie.start()
 
     def mstart(self):
         """sart animnation"""
@@ -129,23 +129,23 @@ class MainWindow(QMainWindow):
         """stop the animation"""
         self.movie.stop()
 
-
-    def openMenu(self, position):
+    def open_menu(self, position):
         menu = QMenu()
-        deleteAction = menu.addAction("Delete")
-        clearAction = menu.addAction("ClearAll")
-        savetoDBAction = menu.addAction("SaveToDB")
+        delete_action = menu.addAction("Delete")
+        clear_action = menu.addAction("ClearAll")
+        saveto_d_b_action = menu.addAction("SaveToDB")
         action = menu.exec_(self.ui.comboBox_4.mapToGlobal(position))
-        if action == deleteAction:
+        if action == delete_action:
             self.ui.comboBox_4.removeItem(self.ui.comboBox_4.currentIndex())
-        elif action == clearAction:
+        elif action == clear_action:
             self.ui.comboBox_4.clear()
-        elif action == savetoDBAction:
+        elif action == saveto_d_b_action:
             DB = shelve.open('DB.txt')
             DB['SConfig'] = [self.ui.comboBox_4.itemText(i) for i in range(self.ui.comboBox_4.count())]
             DB.close()
 
-    def output_to_box(self, text):
+    @staticmethod
+    def output_to_box(text):
         print(text.toUtf8())
 
     def prep_deploy_databases(self):
@@ -204,12 +204,14 @@ class MainWindow(QMainWindow):
             self.DB.pop(str(self.ui.comboBox.currentText()))
             self.ui.comboBox.removeItem(self.ui.comboBox.currentIndex())
 
-    def wid_write(self, cmd):
+    @staticmethod
+    def wid_write(cmd):
         PIPE = subprocess.PIPE
         p = subprocess.Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT)
         print p.stdout.read()
 
-    def start_thread(self, meth):
+    @staticmethod
+    def start_thread(meth):
         threading.Thread(target=meth).start()
 
     def clrlocal_cl(self):
@@ -226,7 +228,8 @@ class MainWindow(QMainWindow):
         self.thread1.message1[str].connect(self.output_to_box)
         self.thread1.start()
 
-    def ess(self):
+    @staticmethod
+    def ess():
         import requests
 
         url = 'http://msmeta6.experium.ru/SupportSrv/SupportSrv.svc/Support/control'
@@ -242,7 +245,6 @@ class MainWindow(QMainWindow):
         r = requests.post(url, auth=('support', 'c5128437'), params=payload, json={'id': ''+str(ess)+''})
         print(r.text.encode('latin1'))
         print(r.status_code)
-
 
     def jenkins_build(self):
         j = self.J.get_job(self.ui.comboBox_2.currentText())
@@ -411,11 +413,13 @@ class MainWindow(QMainWindow):
         self.test = QtGui.QFileDialog.getOpenFileName(self, 'Выберите файл для отправки')
         print (self.test)
 
-    def save_opt(self):
+    @staticmethod
+    def save_opt():
         """TODO"""
 
     def __del__(self):
         self.ui = None
+
 
 class Thread1(QtCore.QThread):
     def __del__(self):
@@ -481,6 +485,7 @@ class Thread3(QtCore.QThread):
         for t in issues_open_all_totay:
             self.message3.emit('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a> ***'+str(t.status)+'*** '+str(t).decode('utf8'))
         self.message3.emit('')
+
 
 class Thread4(QtCore.QThread):
     def __init__(self, parent=None):
