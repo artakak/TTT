@@ -368,7 +368,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -668,70 +668,181 @@
      <attribute name="title">
       <string>API</string>
      </attribute>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_8">
-        <property name="text">
-         <string>Redmine</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_17">
-        <property name="text">
-         <string>Calendar</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="pushButton_19">
-        <property name="text">
-         <string>OPTIONS</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="pushButton_10">
-        <property name="text">
-         <string>Jenkins</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QComboBox" name="comboBox_2"/>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QPushButton" name="pushButton_11">
-        <property name="text">
-         <string>Build</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QPushButton" name="pushButton_14">
-        <property name="text">
-         <string>Queue</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QPushButton" name="pushButton_18">
-        <property name="text">
-         <string>ESSLog</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2" rowspan="3">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QPushButton" name="pushButton_8">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>9</y>
+        <width>131</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Redmine</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_17">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>9</y>
+        <width>121</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Calendar</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_19">
+      <property name="geometry">
+       <rect>
+        <x>285</x>
+        <y>9</y>
+        <width>131</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>OPTIONS</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_10">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>38</y>
+        <width>131</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Jenkins</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboBox_2">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>39</y>
+        <width>271</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_11">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>67</y>
+        <width>131</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Build</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>291</x>
+        <y>67</y>
+        <width>131</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_14">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>67</y>
+        <width>131</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Queue</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_18">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>96</y>
+        <width>131</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>ESSLog</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_8">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>100</y>
+        <width>21</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_15">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>180</y>
+        <width>271</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="placeholderText">
+       <string>ESS key</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboBox_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>150</y>
+        <width>271</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>75</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>ESS list</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_9">

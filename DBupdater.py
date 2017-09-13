@@ -96,12 +96,19 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
         self.ui.pushButton_24.clicked.connect(self.clear_opt)
         self.ui.comboBox_4.customContextMenuRequested.connect(self.open_menu)
+        self.ui.comboBox_5.customContextMenuRequested.connect(self.open_menu_ess)
         try:
             self.ui.comboBox_4.addItems(self.DB['SConfig'])
             if self.ui.comboBox_4.currentText() == '':
                 self.ui.comboBox_4.addItem('127.0.0.1')
         except:
             self.ui.comboBox_4.addItem('127.0.0.1')
+        try:
+            self.ui.comboBox_5.addItems(self.DB['ESS'])
+            if self.ui.comboBox_5.currentText() == '':
+                self.ui.comboBox_5.addItem('msmeta6.experium.ru')
+        except:
+            self.ui.comboBox_5.addItem('msmeta6.experium.ru')
 
         self.logger = Logger(self.ui.textBrowser)
         sys.stdout = self.logger
@@ -144,6 +151,21 @@ class MainWindow(QMainWindow):
             DB['SConfig'] = [self.ui.comboBox_4.itemText(i) for i in range(self.ui.comboBox_4.count())]
             DB.close()
 
+    def open_menu_ess(self, position):
+        menu = QMenu()
+        delete_action = menu.addAction("Delete")
+        clear_action = menu.addAction("ClearAll")
+        saveto_d_b_action = menu.addAction("SaveToDB")
+        action = menu.exec_(self.ui.comboBox_5.mapToGlobal(position))
+        if action == delete_action:
+            self.ui.comboBox_5.removeItem(self.ui.comboBox_5.currentIndex())
+        elif action == clear_action:
+            self.ui.comboBox_5.clear()
+        elif action == saveto_d_b_action:
+            DB = shelve.open('DB.txt')
+            DB['ESS'] = [self.ui.comboBox_5.itemText(i) for i in range(self.ui.comboBox_5.count())]
+            DB.close()
+
     @staticmethod
     def output_to_box(text):
         print(text.toUtf8())
@@ -172,22 +194,22 @@ class MainWindow(QMainWindow):
             trunk_flag = '1'
         else: return(0)
         self.DB = shelve.open('DB.txt')
-        self.DB[str(self.DB_name)] = [str(self.DB_data_path),str(self.DB_serv_path),type_flag,trunk_flag]
+        self.DB[str(self.DB_name)] = [str(self.DB_data_path), str(self.DB_serv_path), type_flag, trunk_flag]
         self.DB.close()
         self.ui.widget.hide()
         self.ui.comboBox.addItem(str(self.DB_name))
-        wdatasrv = open('wdatasrv.par','r')
-        wdatasrv1 = open('wdatasrv1.par','w')
-        wmetasrv1 = open('wmetasrv1.par','w')
-        wmetasrv = open('wmetasrv.par','r')
-        srvini = open('exp_srv.ini','r')
-        srvini1 = open('exp_srv1.ini','w')
+        wdatasrv = open('wdatasrv.par', 'r')
+        wdatasrv1 = open('wdatasrv1.par', 'w')
+        wmetasrv1 = open('wmetasrv1.par', 'w')
+        wmetasrv = open('wmetasrv.par', 'r')
+        srvini = open('exp_srv.ini', 'r')
+        srvini1 = open('exp_srv1.ini', 'w')
         text = wdatasrv.read()
-        wdatasrv1.write(text.replace('DB_data_path',str(self.DB_data_path)))
+        wdatasrv1.write(text.replace('DB_data_path', str(self.DB_data_path)))
         text = wmetasrv.read()
-        wmetasrv1.write(text.replace('DB_data_path',str(self.DB_data_path)))
+        wmetasrv1.write(text.replace('DB_data_path', str(self.DB_data_path)))
         text = srvini.read()
-        srvini1.write(text.replace('DB_serv_path',str(self.DB_serv_path)))
+        srvini1.write(text.replace('DB_serv_path', str(self.DB_serv_path)))
         srvini.close()
         srvini1.close()
         wdatasrv.close()
@@ -200,7 +222,7 @@ class MainWindow(QMainWindow):
 
     def uninstall_databases(self):
         self.DB = shelve.open('DB.txt')
-        if not self.ui.comboBox.currentText() in ['HRM_Trunk','HRM_Release','AGN_Trunk','AGN_Release']:
+        if not self.ui.comboBox.currentText() in ['HRM_Trunk', 'HRM_Release', 'AGN_Trunk', 'AGN_Release']:
             self.DB.pop(str(self.ui.comboBox.currentText()))
             self.ui.comboBox.removeItem(self.ui.comboBox.currentIndex())
 
@@ -228,23 +250,26 @@ class MainWindow(QMainWindow):
         self.thread1.message1[str].connect(self.output_to_box)
         self.thread1.start()
 
-    @staticmethod
-    def ess():
+    def ess(self):
         import requests
 
-        url = 'http://msmeta6.experium.ru/SupportSrv/SupportSrv.svc/Support/control'
-        payload = {'command':'grep'}
-        ess = ''
-
-        win32clipboard.OpenClipboard()
-        ess = win32clipboard.GetClipboardData()
-        win32clipboard.CloseClipboard()
-
-        print('***'+ess+'***')
-
-        r = requests.post(url, auth=('support', 'c5128437'), params=payload, json={'id': ''+str(ess)+''})
-        print(r.text.encode('latin1'))
-        print(r.status_code)
+        self.ui.lineEdit_8.setStyleSheet("background-color: white")
+        if self.ui.lineEdit_15.text() != "":
+            ess_key = str(self.ui.lineEdit_15.text())
+            url = '%s/SupportSrv/SupportSrv.svc/Support/control/api/grep' % self.ui.comboBox_5.currentText()
+            try:
+                r = requests.post(url, auth=('support', 'c5128437'), json={'id': ess_key}, verify=False)
+                if r.status_code == 200:
+                    data = r.text.encode('latin1').decode('utf-8')
+                    win32clipboard.OpenClipboard()
+                    win32clipboard.EmptyClipboard()
+                    win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, data)
+                    win32clipboard.CloseClipboard()
+                    self.ui.lineEdit_8.setStyleSheet("background-color: green")
+                else:
+                    self.ui.lineEdit_8.setStyleSheet("background-color: red")
+            except:
+                self.ui.lineEdit_8.setStyleSheet("background-color: red")
 
     def jenkins_build(self):
         j = self.J.get_job(self.ui.comboBox_2.currentText())
