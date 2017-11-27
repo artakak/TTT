@@ -257,8 +257,18 @@ class MainWindow(QMainWindow):
         if self.ui.lineEdit_15.text() != "":
             ess_key = str(self.ui.lineEdit_15.text())
             url = '%s/SupportSrv/SupportSrv.svc/Support/control/api/grep' % self.ui.comboBox_5.currentText()
+            headers = {
+                'accept': "application/json, text/plain, */*",
+                'origin': "https://msmeta6.experium.ru",
+                'x-devtools-emulate-network-conditions-client-id': "41f1c26a-9fd4-48be-b7e5-82cfd3d85220",
+                'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36",
+                'content-type': "application/json;charset=UTF-8",
+                'accept-encoding': "gzip, deflate, br",
+                'accept-language': "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+                'authorization': "Basic c3VwcG9ydDpjNTEyODQzNw==",
+                'cache-control': "no-cache"}
             try:
-                r = requests.post(url, auth=('support', 'c5128437'), json={'id': ess_key}, verify=False)
+                r = requests.post(url, headers=headers, json={'id': ess_key}, verify=False)
                 if r.status_code == 200:
                     data = r.text.encode('latin1').decode('utf-8')
                     win32clipboard.OpenClipboard()
