@@ -95,6 +95,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_22.clicked.connect(self.deploy_database)
         self.ui.pushButton_16.clicked.connect(self.uninstall_databases)
         self.ui.pushButton_24.clicked.connect(self.clear_opt)
+        #self.ui.tableWidget.cellDoubleClicked.connect(self.mada)
         self.ui.comboBox_4.customContextMenuRequested.connect(self.open_menu)
         self.ui.comboBox_5.customContextMenuRequested.connect(self.open_menu_ess)
         try:
@@ -119,7 +120,7 @@ class MainWindow(QMainWindow):
 
         self.DB.close()
         self.t_time = None
-        self.ui.calendarWidget.selectionChanged.connect(lambda: self.start_thread(self.redmine_anyday))
+        self.ui.calendarWidget.selectionChanged.connect(self.redmine)
         #self.ui.tabWidget.setStyleSheet("background-image: url(./Experium.jpg)")
         self.ui.textBrowser.setStyleSheet("background-color: yellow; color: black")
 
@@ -127,6 +128,15 @@ class MainWindow(QMainWindow):
         self.movie.setCacheMode(QMovie.CacheAll)
         self.movie.setSpeed(100)
         self.ui.label_8.setMovie(self.movie)
+
+    """def mada(self, row, col):
+        item = QTableWidgetItem(self.ui.tableWidget.currentItem())
+        brush = QtGui.QBrush(QtGui.QColor(125, 125, 125))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        item.setBackground(brush)
+        self.ui.tableWidget.setItem(1, 1, QTableWidgetItem(self.ui.tableWidget.currentItem()))
+        self.ui.tableWidget.setItem(row, col, item)"""
+
 
     def mstart(self):
         """sart animnation"""
@@ -294,12 +304,11 @@ class MainWindow(QMainWindow):
         self.thread4.start()
 
     def calendar(self):
-        self.ui.calendarWidget.show()
-
-    def redmine_anyday(self):
-        self.thread3 = Thread3(self)
-        self.thread3.message3[str].connect(self.output_to_box)
-        self.thread3.start()
+        win = self.ui.calendarWidget
+        win.show()
+        x = self.x() + self.frameSize().width()
+        y = self.y()
+        win.move(x, y)
 
     def update_cl(self):
         if self.ui.checkBox_4.isChecked():
@@ -457,27 +466,28 @@ class MainWindow(QMainWindow):
 
 
 class Thread1(QtCore.QThread):
+
     def __del__(self):
         self.wait()
     message1 = QtCore.pyqtSignal(str)
 
     def run(self):
-        t_time = datetime.date.today()
+        date = w.ui.calendarWidget.selectedDate().toPyDate()
         redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
         issues_open_me = redmine.issue.filter(status_id='open', assigned_to_id=148)
         issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open',
-                                                         created_on=str(t_time))
+                                                         created_on=str(date))
         issues_open_all_totay_up = redmine.issue.filter(project_id='experium', status_id='open',
-                                                            updated_on=str(t_time))
+                                                            updated_on=str(date))
         self.message1.emit('ISSUES ASSIGNED TO ME!!!')
         for t in issues_open_me:
             self.message1.emit('<a href="http://help.heliosoft.ru/issues/' + str(t.id) + '">' + str(t.id) + '</a> ***' + str(t.status) + '*** ' + str(t).decode('utf8'))
 
-        self.message1.emit('\n\nEXPERIUM ISSUES CREATED TODAY!!! ' + str(t_time))
+        self.message1.emit('\n\nEXPERIUM ISSUES CREATED TODAY!!! ' + str(date))
         for t in issues_open_all_totay:
             self.message1.emit('<a href="http://help.heliosoft.ru/issues/' + str(t.id) + '">' + str(t.id) + '</a> ***' + str(t.status) + '*** ' + str(t).decode('utf8'))
 
-        self.message1.emit('\n\nEXPERIUM ISSUES UPDATE TODAY!!! ' + str(t_time))
+        self.message1.emit('\n\nEXPERIUM ISSUES UPDATE TODAY!!! ' + str(date))
         for t in issues_open_all_totay_up:
             self.message1.emit('<a href="http://help.heliosoft.ru/issues/' + str(t.id) + '">' + str(t.id) + '</a> ***' + str(t.status) + '*** ' + str(t).decode('utf8'))
 
@@ -501,25 +511,6 @@ class Thread2(QtCore.QThread):
         for t in xrange(len(changes)):
             self.message2.emit('\n'+str(t + 1)+str(changes[t]['msg']).decode('utf8'))
         self.message2.emit('')
-
-
-class Thread3(QtCore.QThread):
-    def __init__(self, parent=None):
-        QThread.__init__(self, parent)
-        self.date = w.ui.calendarWidget.selectedDate().toPyDate()
-
-    def __del__(self):
-        self.wait()
-
-    message3 = QtCore.pyqtSignal(str)
-
-    def run(self):
-        redmine = Redmine('http://help.heliosoft.ru', key='ceb184c8482614bd34a72612861176c9a02732ee')
-        issues_open_all_totay = redmine.issue.filter(project_id='experium', status_id='open', created_on=self.date)
-        self.message3.emit('EXPERIUM ISSUES CREATED !!! ' + str(self.date))
-        for t in issues_open_all_totay:
-            self.message3.emit('<a href="http://help.heliosoft.ru/issues/'+str(t.id)+'">'+str(t.id)+'</a> ***'+str(t.status)+'*** '+str(t).decode('utf8'))
-        self.message3.emit('')
 
 
 class Thread4(QtCore.QThread):
