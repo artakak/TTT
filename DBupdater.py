@@ -6,7 +6,6 @@ import shelve
 import time
 import subprocess
 import threading
-import datetime
 import win32clipboard
 from zipfile import *
 from jenkinsapi.jenkins import Jenkins
