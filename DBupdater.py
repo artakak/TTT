@@ -57,11 +57,12 @@ class MainWindow(QMainWindow):
         self.srvupd = [r'\exp_srv.exe',r'\sdatacnv.exe',r'\sdatasrv.exe',r'\sexpsrv.exe',r'\smetasrch.exe',r'\smetasrv.exe',r'\srmeta.exe',r'\wcnvnode.exe',r'\wdatacnv.exe',r'\wdatasrv.exe',r'\wmetasrch.exe',r'\wmetasrv.exe',r'\wrmeta.exe']
         self.localdatas = [r'C:\Users\win7_test\AppData\Roaming\Experium\Client']
 
-        self.J = Jenkins('http://buildsrv.experium.ru/', username="golubkin", password="aquasoft",
-                         requester=CrumbRequester(baseurl='http://buildsrv.experium.ru/', username="golubkin",
-                                                  password="aquasoft"))
+        self.J = Jenkins('http://buildsrv.experium.ru/', username="", password="",
+                         requester=CrumbRequester(baseurl='http://buildsrv.experium.ru/', username="",
+                                                  password=""))
         self.ui.comboBox_2.addItems(self.J.keys())
-
+        
+        # Отрисовка модальных окон 
         self.ui.calendarWidget.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
         self.ui.calendarWidget.setWindowTitle('Calendar for Redmine')
 
@@ -128,13 +129,13 @@ class MainWindow(QMainWindow):
         self.movie.setSpeed(100)
         self.ui.label_8.setMovie(self.movie)
 
-    """def mada(self, row, col):
+    def mada(self, row, col):
         item = QTableWidgetItem(self.ui.tableWidget.currentItem())
         brush = QtGui.QBrush(QtGui.QColor(125, 125, 125))
         brush.setStyle(QtCore.Qt.SolidPattern)
         item.setBackground(brush)
         self.ui.tableWidget.setItem(1, 1, QTableWidgetItem(self.ui.tableWidget.currentItem()))
-        self.ui.tableWidget.setItem(row, col, item)"""
+        self.ui.tableWidget.setItem(row, col, item)
 
 
     def mstart(self):
